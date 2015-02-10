@@ -43,8 +43,8 @@ public class ExcelSheetWriter extends AbstractTableWriter {
         for (int i = 0; i < values.length; i++) {
             if (values[i] instanceof Boolean)
                 row.createCell(i, Cell.CELL_TYPE_BOOLEAN).setCellValue((Boolean) values[i]);
-            else if (values[i] instanceof Double)
-                row.createCell(i, Cell.CELL_TYPE_NUMERIC).setCellValue((Double) values[i]);
+            else if (values[i] instanceof Number)
+                row.createCell(i, Cell.CELL_TYPE_NUMERIC).setCellValue(((Number) values[i]).doubleValue());
             else if (values[i] instanceof Calendar)
                 row.createCell(i, Cell.CELL_TYPE_STRING).setCellValue((Calendar) values[i]);
             else if (values[i] instanceof Date)
