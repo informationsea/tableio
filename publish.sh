@@ -1,1 +1,2 @@
-./gradlew clean assemble check generatePomFileForMavenJavaPublication pP publish
+#!/bin/sh
+./gradlew clean build generatePomFileForMavenJavaPublication pP publish
