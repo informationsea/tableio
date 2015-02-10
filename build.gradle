@@ -8,9 +8,6 @@ subprojects {
     group = 'info.informationsea.tableio'
     version = '0.0.1-SNAPSHOT'
 
-    def packageName = "Table/IO"
-    def description = 'Uniformed Table Reader/Writer for CSV, TSV and Excel files'
-
     repositories {
         mavenCentral()
         mavenLocal()
@@ -98,20 +95,40 @@ subprojects {
 
                 pom.withXml {
                     def node = asNode()
-                    node.appendNode('name', project.ext.packageName)
-                    node.appendNode('description', project.ext.description)
-                    node.appendNode('url', 'https://github.com/informationsea/tableio')
-                    def license = node.appendNode('licenses').appendNode('license')
-                    license.appendNode('name', 'GNU General Public License, version 3')
-                    license.appendNode('url', 'http://www.gnu.org/licenses/gpl-3.0-standalone.html')
-                    def developers = node.appendNode('developers').appendNode('developer')
-                    developers.appendNode('name', 'OKAMURA Yasunobu')
-                    developers.appendNode('email', 'okamura@informationsea.info')
-                    def scm = node.appendNode('scm')
-                    scm.appendNode('connection', 'scm:git:https://github.com/informationsea/tableio')
-                    scm.appendNode('developerConnection', 'scm:git:git@github.com:informationsea/tableio.git')
-                    scm.appendNode('url', 'https://github.com/informationsea/tableio/')
-                    node.appendNode('packaging', 'jar')
+                    node.children().last() + {
+                        resolveStrategy = Closure.DELEGATE_FIRST
+                        name project.ext.packageName
+                        description project.ext.description
+                        url 'https://github.com/informationsea/tableio'
+
+                        licenses {
+                            license {
+                                name 'GNU General Public License, version 3'
+                                url 'http://www.gnu.org/licenses/gpl-3.0-standalone.html'
+                            }
+                        }
+                        
+                        developers {
+                            developer {
+                                name 'OKAMURA Yasunobu'
+                                email 'okamura@informationsea.info'
+                            }
+                        }
+                        
+                        scm {
+                            connection 'scm:git:https://github.com/informationsea/tableio'
+                            developerConnection 'scm:git:git@github.com:informationsea/tableio.git'
+                            url 'https://github.com/informationsea/tableio/'
+                        }
+                    }
+                    
+                    def dependencies = node.appendNode('dependencies')
+                    project.configurations.compile.dependencies.each { dep ->
+                        def dependency = dependencies.appendNode('dependency')
+                        dependency.appendNode('groupId', dep.group)
+                        dependency.appendNode('artifactId', dep.name)
+                        dependency.appendNode('version', dep.version)
+                    }
                 }
             }
 
