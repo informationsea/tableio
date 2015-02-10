@@ -1,0 +1,9 @@
+ext {
+    packageName = "Table/IO Core Package"
+    description = 'Uniformed Table Reader/Writer Core Packages'
+}
+
+dependencies {
+    testCompile group: 'junit', name: 'junit', version: '4.11'
+    compile 'org.projectlombok:lombok:1.14.8'
+}
