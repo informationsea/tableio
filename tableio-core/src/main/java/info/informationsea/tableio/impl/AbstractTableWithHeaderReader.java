@@ -104,6 +104,11 @@ public abstract class AbstractTableWithHeaderReader extends AbstractTableReader 
 
             return returnObj;
         }
+
+        @Override
+        public void remove() {
+            throw new UnsupportedOperationException();
+        }
     }
 
 
