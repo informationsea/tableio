@@ -6,7 +6,7 @@ subprojects {
 
     sourceCompatibility = 1.7
     group = 'info.informationsea.tableio'
-    version = '0.0.1-SNAPSHOT'
+    version = '0.0.1'
 
     repositories {
         mavenCentral()
@@ -124,6 +124,7 @@ subprojects {
                     
                     def dependencies = node.appendNode('dependencies')
                     project.configurations.compile.dependencies.each { dep ->
+                        if (dep.name == 'lombok') return
                         def dependency = dependencies.appendNode('dependency')
                         dependency.appendNode('groupId', dep.group)
                         dependency.appendNode('artifactId', dep.name)
