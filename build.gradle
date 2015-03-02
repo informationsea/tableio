@@ -10,7 +10,10 @@ subprojects {
 
     repositories {
         mavenCentral()
-        mavenLocal()
+    }
+
+    javadoc {
+        options.locale = 'en_US'
     }
 
     task testAndReport(dependsOn: [test, jacocoTestReport]) << {}
@@ -163,6 +166,16 @@ subprojects {
         }
     }
 }
+
+apply plugin: 'java'
+
+javadoc {
+    options.locale = 'en_US'
+    source rootProject.subprojects.collect {
+        it.projectDir.getAbsolutePath() + '/src/main/java'
+    }
+}
+
 
 allprojects {
     apply plugin: 'idea'
