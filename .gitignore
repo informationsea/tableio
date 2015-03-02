@@ -4,3 +4,4 @@ build/
 *.iws
 .idea
 .gradle
+/.nb-gradle/private/
