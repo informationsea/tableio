@@ -1,3 +1,41 @@
+import lombok.delombok.Delombok
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'org.projectlombok:lombok:1.14.8'
+        classpath 'org.apache.poi:poi:3.10.1'
+        classpath 'org.apache.poi:poi-ooxml:3.10.1'
+        classpath 'net.sf.opencsv:opencsv:2.3'
+    }
+}
+
+apply plugin: 'java'
+
+task delombok << {
+    def delombokInstance = new Delombok()
+    rootProject.subprojects.each {
+        delombokInstance.addDirectory(file(it.projectDir.getAbsolutePath() + '/src/main/java'))
+
+        it.configurations.compile.dependencies.each {
+            println it
+        }
+    }
+
+    delombokInstance.setOutput(file("$buildDir/delomboked"))
+    delombokInstance.delombok()
+}
+
+javadoc.dependsOn(delombok)
+
+javadoc {
+    options.locale = 'en_US'
+    source "$buildDir/delomboked"
+}
+
+
 subprojects {
     apply plugin: 'java'
     apply plugin: 'jacoco'
@@ -6,7 +44,7 @@ subprojects {
 
     sourceCompatibility = 1.7
     group = 'info.informationsea.tableio'
-    version = '0.0.1'
+    version = '0.0.2-SNAPSHOT'
 
     repositories {
         mavenCentral()
@@ -166,16 +204,6 @@ subprojects {
         }
     }
 }
-
-apply plugin: 'java'
-
-javadoc {
-    options.locale = 'en_US'
-    source rootProject.subprojects.collect {
-        it.projectDir.getAbsolutePath() + '/src/main/java'
-    }
-}
-
 
 allprojects {
     apply plugin: 'idea'

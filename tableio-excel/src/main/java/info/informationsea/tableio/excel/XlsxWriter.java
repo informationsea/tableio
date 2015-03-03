@@ -18,6 +18,7 @@
 
 package info.informationsea.tableio.excel;
 
+import lombok.Getter;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 
@@ -26,23 +27,25 @@ import java.io.OutputStream;
 
 public class XlsxWriter extends ExcelSheetWriter implements AutoCloseable {
 
+    @Getter
     protected Workbook workbook;
     private OutputStream outputStream;
 
     public XlsxWriter(OutputStream os) {
         workbook = new SXSSFWorkbook();
-        sheet = workbook.createSheet();
+        setSheet(workbook.createSheet());
         outputStream = os;
     }
 
     public XlsxWriter(OutputStream os, String sheetName) {
         workbook = new SXSSFWorkbook();
-        sheet = workbook.createSheet(sheetName);
+        setSheet(workbook.createSheet(sheetName));
         outputStream = os;
     }
 
     @Override
     public void close() throws Exception {
+        super.close();
         workbook.write(outputStream);
         outputStream.close();
     }

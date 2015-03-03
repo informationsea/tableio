@@ -65,5 +65,10 @@ public class AbstractTableReaderTest {
         public Iterator<TableRecord> iterator() {
             return list.iterator();
         }
+
+        @Override
+        public void close() throws Exception {
+
+        }
     }
 }

@@ -31,7 +31,7 @@ public class AbstractTableWriterTest {
     };
 
     @Test
-    public void testPrintAll() {
+    public void testPrintAll() throws Exception {
         new AbstractTableWriter() {
             private int i = 0;
 
@@ -39,6 +39,11 @@ public class AbstractTableWriterTest {
             public void printRecord(Object... values) {
                 Assert.assertArrayEquals(data[i], values);
                 i += 1;
+            }
+
+            @Override
+            public void close() throws Exception {
+
             }
         }.printAll(Arrays.asList(data));
 

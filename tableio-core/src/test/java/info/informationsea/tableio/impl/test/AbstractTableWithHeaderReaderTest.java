@@ -40,6 +40,11 @@ public class AbstractTableWithHeaderReaderTest {
     @Before
     public void before() {
         tableCSVReader = new AbstractTableWithHeaderReader() {
+            @Override
+            public void close() throws Exception {
+
+            }
+
             private int row = 0;
 
             @Override

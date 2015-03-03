@@ -23,18 +23,18 @@ import java.util.List;
 /**
  *
  */
-public interface TableWriter {
+public interface TableWriter extends AutoCloseable{
     /**
      * Print out one row
      *
      * @param values value to print
      */
-    public void printRecord(Object... values);
+    public void printRecord(Object... values) throws Exception;
 
     /**
      * Print out all data in {@literal data}
      *
      * @param data data to print
      */
-    public void printAll(List<Object[]> data);
+    public void printAll(List<Object[]> data) throws Exception;
 }

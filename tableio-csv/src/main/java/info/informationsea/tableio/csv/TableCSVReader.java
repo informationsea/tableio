@@ -25,7 +25,7 @@ import info.informationsea.tableio.impl.AbstractTableWithHeaderReader;
 import java.io.IOException;
 import java.io.Reader;
 
-public class TableCSVReader extends AbstractTableWithHeaderReader implements AutoCloseable {
+public class TableCSVReader extends AbstractTableWithHeaderReader {
 
     private CSVReader csvReader;
 

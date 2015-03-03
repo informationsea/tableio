@@ -24,7 +24,7 @@ import java.util.List;
 
 public abstract class AbstractTableWriter implements TableWriter {
     @Override
-    public void printAll(List<Object[]> data) {
+    public void printAll(List<Object[]> data) throws Exception{
         for (Object[] row : data) {
             printRecord(row);
         }

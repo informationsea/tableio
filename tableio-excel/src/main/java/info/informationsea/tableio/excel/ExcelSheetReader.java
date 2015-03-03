@@ -59,4 +59,9 @@ public class ExcelSheetReader extends AbstractTableWithHeaderReader {
         currentRow += 1;
         return rowObjects;
     }
+
+    @Override
+    public void close() throws Exception {
+        // do nothing
+    }
 }

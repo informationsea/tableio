@@ -19,40 +19,184 @@
 package info.informationsea.tableio.excel;
 
 import info.informationsea.tableio.impl.AbstractTableWriter;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
+import lombok.*;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.xssf.usermodel.XSSFCellStyle;
+import org.apache.poi.xssf.usermodel.XSSFColor;
 
+import java.awt.*;
+import java.awt.Color;
+import java.awt.image.IndexColorModel;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
-@RequiredArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ExcelSheetWriter extends AbstractTableWriter {
     @NonNull
-    protected Sheet sheet;
+    private Sheet sheet;
     private int currentRow = 0;
+    private int maxColumn = 0;
+
+    @Setter @Getter
+    private boolean autoFilter = false;
+    @Setter @Getter
+    private boolean alternativeBackground = false;
+    @Setter @Getter
+    private boolean enableHeaderStyle = false;
+    @Setter @Getter
+    private boolean autoResizeColumn = false;
+
+    private static final String DEFAULT_STYLE = "DEFAULT_STYLE";
+    private enum CellStyleType {
+        BASE, HEADER, ALTERNATIVE, LINK, LINK_ALTERNATIVE
+    }
+    private Object currentStyle = DEFAULT_STYLE;
+    private Map<Object, Map<CellStyleType, CellStyle>> styles = new HashMap<>();
+
+
+
+    public ExcelSheetWriter(Sheet sheet) {
+        setSheet(sheet);
+    }
+
+    private void initialize() {
+        registerBaseCellStyle(DEFAULT_STYLE, sheet.getWorkbook().createCellStyle());
+        useBaseCellStyle(DEFAULT_STYLE);
+    }
+
+    protected void setSheet(Sheet sheet) {
+        this.sheet = sheet;
+        initialize();
+    }
+
+    public void useBaseCellStyle(Object index) {
+        currentStyle = index;
+    }
+
+    public void registerBaseCellStyle(Object index, CellStyle style) {
+        CellStyle baseCellStyles = style;
+
+        // header style
+        CellStyle headerCellStyles = sheet.getWorkbook().createCellStyle();
+        headerCellStyles.cloneStyleFrom(style);
+        Font headerFont = sheet.getWorkbook().createFont();
+        headerFont.setBoldweight(Font.BOLDWEIGHT_BOLD);
+        headerCellStyles.setFont(headerFont);
+        headerCellStyles.setFillPattern(CellStyle.SOLID_FOREGROUND);
+        headerCellStyles.setFillForegroundColor(IndexedColors.WHITE.getIndex());
+
+        // alternative style
+        CellStyle alternativeCellStyles = sheet.getWorkbook().createCellStyle();
+        alternativeCellStyles.cloneStyleFrom(style);
+        if (style instanceof XSSFCellStyle) {
+            ((XSSFCellStyle) alternativeCellStyles).setFillForegroundColor(new XSSFColor(new Color(242, 242, 242)));
+        } else {
+            alternativeCellStyles.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
+        }
+        alternativeCellStyles.setFillPattern(CellStyle.SOLID_FOREGROUND);
+
+        // link style
+        Font linkFont = sheet.getWorkbook().createFont();
+        linkFont.setColor(IndexedColors.BLUE.getIndex());
+        CellStyle linkStyle = sheet.getWorkbook().createCellStyle();
+        linkStyle.cloneStyleFrom(baseCellStyles);
+        linkStyle.setFont(linkFont);
+        CellStyle alternativeLinkStyle = sheet.getWorkbook().createCellStyle();
+        alternativeLinkStyle.cloneStyleFrom(alternativeCellStyles);
+        alternativeLinkStyle.setFont(linkFont);
+
+        Map<CellStyleType, CellStyle> styleMap = new HashMap<>();
+        styleMap.put(CellStyleType.BASE, baseCellStyles);
+        styleMap.put(CellStyleType.HEADER, headerCellStyles);
+        styleMap.put(CellStyleType.ALTERNATIVE, alternativeCellStyles);
+        styleMap.put(CellStyleType.BASE, baseCellStyles);
+        styleMap.put(CellStyleType.LINK, linkStyle);
+        styleMap.put(CellStyleType.LINK_ALTERNATIVE, alternativeLinkStyle);
+        styles.put(index, styleMap);
+    }
 
     @Override
     public void printRecord(Object... values) {
         Row row = sheet.createRow(currentRow);
+
+        CellStyle style = styles.get(currentStyle).get(CellStyleType.BASE);
+        if (currentRow % 2 == 1 && alternativeBackground)
+            style = styles.get(currentStyle).get(CellStyleType.ALTERNATIVE);
+        if (currentRow == 0 && enableHeaderStyle)
+            style = styles.get(currentStyle).get(CellStyleType.HEADER);
+
         for (int i = 0; i < values.length; i++) {
+            Cell cell;
             if (values[i] instanceof Boolean)
-                row.createCell(i, Cell.CELL_TYPE_BOOLEAN).setCellValue((Boolean) values[i]);
+                cell = createCell(row, i, (Boolean) values[i]);
             else if (values[i] instanceof Number)
-                row.createCell(i, Cell.CELL_TYPE_NUMERIC).setCellValue(((Number) values[i]).doubleValue());
+                cell = createCell(row, i, ((Number) values[i]).doubleValue());
             else if (values[i] instanceof Calendar)
-                row.createCell(i, Cell.CELL_TYPE_STRING).setCellValue((Calendar) values[i]);
+                cell = createCell(row, i, (Calendar) values[i]);
             else if (values[i] instanceof Date)
-                row.createCell(i, Cell.CELL_TYPE_STRING).setCellValue((Date) values[i]);
+                cell = createCell(row, i, (Date) values[i]);
             else
-                row.createCell(i, Cell.CELL_TYPE_STRING).setCellValue(values[i].toString());
+                cell = createCell(row, i, values[i].toString());
+            cell.setCellStyle(style);
         }
 
+        maxColumn = Math.max(values.length, maxColumn);
         currentRow += 1;
     }
+
+    public void setPrettyTable(boolean enable) {
+        setAutoFilter(enable);
+        setAlternativeBackground(enable);
+        setEnableHeaderStyle(enable);
+        setAutoResizeColumn(enable);
+    }
+
+    @Override
+    public void close() throws Exception{
+        if (autoFilter)
+            sheet.setAutoFilter(new CellRangeAddress(0, currentRow-1, 0, maxColumn-1));
+        if (enableHeaderStyle)
+            sheet.createFreezePane(0, 1, 0, 1);
+        if (autoResizeColumn) {
+            for (int i = 0; i < maxColumn; i++) {
+                sheet.autoSizeColumn(i);
+            }
+        }
+    }
+
+    private static Cell createCell(Row row, int column, boolean value) {
+        Cell cell = row.createCell(column, Cell.CELL_TYPE_BOOLEAN);
+        cell.setCellValue(value);
+        return cell;
+    }
+
+    private static Cell createCell(Row row, int column, double value) {
+        Cell cell = row.createCell(column, Cell.CELL_TYPE_NUMERIC);
+        cell.setCellValue(value);
+        return cell;
+    }
+
+    private static Cell createCell(Row row, int column, String value) {
+        Cell cell = row.createCell(column, Cell.CELL_TYPE_STRING);
+        cell.setCellValue(value);
+        return cell;
+    }
+
+    private static Cell createCell(Row row, int column, Calendar value) {
+        Cell cell = row.createCell(column, Cell.CELL_TYPE_STRING);
+        cell.setCellValue(value);
+        return cell;
+    }
+
+    private static Cell createCell(Row row, int column, Date value) {
+        Cell cell = row.createCell(column, Cell.CELL_TYPE_STRING);
+        cell.setCellValue(value);
+        return cell;
+    }
+
+
 }
