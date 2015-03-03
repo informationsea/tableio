@@ -18,6 +18,7 @@
 
 package info.informationsea.tableio.excel;
 
+import info.informationsea.tableio.ImageSheetWriter;
 import info.informationsea.tableio.TableWorkbookWriter;
 import info.informationsea.tableio.TableWriter;
 import lombok.Getter;
@@ -39,6 +40,11 @@ public class ExcelWorkbookWriter implements TableWorkbookWriter {
         ExcelSheetWriter writer = new ExcelSheetWriter(workbook.createSheet(tableName));
         writer.setPrettyTable(prettyTable);
         return writer;
+    }
+
+    @Override
+    public ImageSheetWriter createImageSheet(String sheetName) throws Exception {
+        return new ExcelImageSheetWriter(workbook.createSheet(sheetName));
     }
 
     @Override

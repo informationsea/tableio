@@ -35,16 +35,20 @@ javadoc {
     source "$buildDir/delomboked"
 }
 
-
-subprojects {
+allprojects {
+    apply plugin: 'idea'
     apply plugin: 'java'
-    apply plugin: 'jacoco'
-    apply plugin: 'maven-publish'
-    apply plugin: 'signing'
 
     sourceCompatibility = 1.7
     group = 'info.informationsea.tableio'
     version = '0.0.2-SNAPSHOT'
+}
+
+
+subprojects {
+    apply plugin: 'jacoco'
+    apply plugin: 'maven-publish'
+    apply plugin: 'signing'
 
     repositories {
         mavenCentral()
@@ -205,6 +209,3 @@ subprojects {
     }
 }
 
-allprojects {
-    apply plugin: 'idea'
-}

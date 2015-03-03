@@ -19,6 +19,7 @@
 
 package info.informationsea.tableio.csv;
 
+import info.informationsea.tableio.ImageSheetWriter;
 import info.informationsea.tableio.TableWorkbookWriter;
 import info.informationsea.tableio.TableWriter;
 import info.informationsea.tableio.csv.format.DefaultFormat;
@@ -57,6 +58,11 @@ public class ZipCSVTableWorkbookWriter implements TableWorkbookWriter {
     public TableWriter createTable(String tableName) throws IOException {
         zipOutputStream.putNextEntry(new ZipEntry(tableName+suffix));
         return new TableCSVWriter(new OutputStreamWriter(new ZipEntryOutputStream(zipOutputStream)), format);
+    }
+
+    @Override
+    public ImageSheetWriter createImageSheet(String sheetName) throws IOException {
+        return new ZipCSVImageSheetWriter(zipOutputStream, sheetName);
     }
 
     @Override
