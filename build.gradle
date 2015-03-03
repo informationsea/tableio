@@ -35,6 +35,11 @@ javadoc {
     source "$buildDir/delomboked"
 }
 
+task javadocZip (type: Zip, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from "$buildDir/docs/javadoc"
+}
+
 allprojects {
     apply plugin: 'idea'
     apply plugin: 'java'
