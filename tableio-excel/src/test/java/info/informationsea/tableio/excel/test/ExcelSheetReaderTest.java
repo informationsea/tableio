@@ -18,6 +18,7 @@
 
 package info.informationsea.tableio.excel.test;
 
+import info.informationsea.tableio.TableRecord;
 import info.informationsea.tableio.excel.ExcelSheetReader;
 import info.informationsea.tableio.excel.XlsReader;
 import info.informationsea.tableio.excel.XlsxReader;
@@ -28,7 +29,9 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 public class ExcelSheetReaderTest {
     public static final String[] header = new String[]{"Index", "Sepal.Length", "Sepal.Width", "Petal.Length", "Petal.Width", "Species"};
@@ -63,6 +66,21 @@ public class ExcelSheetReaderTest {
         testContents(new XlsReader(getClass().getResourceAsStream("iris.xls")));
         testContents(new XlsReader(getClass().getResourceAsStream("iris.xls"), 0));
         testContents(new XlsReader(getClass().getResourceAsStream("iris.xls"), "iris.csv"));
+    }
+
+    @Test
+    public void testNullLine() throws Exception {
+        XlsxReader reader = new XlsxReader(getClass().getResourceAsStream("nullline.xlsx"));
+        Iterator<TableRecord> iterator = reader.iterator();
+
+        Assert.assertArrayEquals(new String[]{"A1", "B1"}, iterator.next().getContent());
+        Assert.assertArrayEquals(new String[]{}, iterator.next().getContent());
+        Assert.assertArrayEquals(new String[]{"A3", "B3", null, "D3"}, iterator.next().getContent());
+        Assert.assertArrayEquals(new String[]{}, iterator.next().getContent());
+        Assert.assertArrayEquals(new String[]{}, iterator.next().getContent());
+        Assert.assertArrayEquals(new String[]{null, null, null, "D6"}, iterator.next().getContent());
+        Assert.assertFalse(iterator.hasNext());
+
     }
 
     private void testContents(ExcelSheetReader excelSheetReader) {

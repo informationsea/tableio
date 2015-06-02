@@ -5,3 +5,4 @@ build/
 .idea
 .gradle
 /.nb-gradle/private/
+~$*

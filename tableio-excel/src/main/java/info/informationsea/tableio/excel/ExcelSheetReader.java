@@ -38,6 +38,11 @@ public class ExcelSheetReader extends AbstractTableWithHeaderReader {
             return null;
 
         Row row = sheet.getRow(currentRow);
+        if (row == null) {
+            currentRow += 1;
+            return new Object[0];
+        }
+
         Object[] rowObjects = new Object[row.getLastCellNum()];
         for (Cell cell : row) {
             Object value;
