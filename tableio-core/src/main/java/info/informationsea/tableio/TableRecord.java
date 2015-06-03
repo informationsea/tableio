@@ -18,10 +18,10 @@
 
 package info.informationsea.tableio;
 
-public interface TableRecord extends Iterable<Object> {
-    Object get(int i);
+public interface TableRecord extends Iterable<TableCell> {
+    TableCell get(int i);
 
-    Object get(String key);
+    TableCell get(String key);
 
     TableCell[] getContent();
 

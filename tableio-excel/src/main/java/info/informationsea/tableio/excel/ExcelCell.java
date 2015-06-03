@@ -20,31 +20,46 @@ package info.informationsea.tableio.excel;
 
 import info.informationsea.tableio.TableCell;
 import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.Value;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
 
-@Value @AllArgsConstructor
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+@EqualsAndHashCode
 public class ExcelCell implements TableCell {
 
+    @Getter
     private Cell cell;
+    @Getter
+    private CellType cellType = CellType.BLANK;
 
-    @Override
-    public CellType getCellType() {
-        switch (cell.getCellType()) {
-            case Cell.CELL_TYPE_BLANK:
-                return CellType.BLANK;
-            case Cell.CELL_TYPE_NUMERIC:
-                return CellType.NUMERIC;
-            case Cell.CELL_TYPE_BOOLEAN:
-                return CellType.BOOLEAN;
-            case Cell.CELL_TYPE_STRING:
-                return CellType.STRING;
-            case Cell.CELL_TYPE_FORMULA:
-                return CellType.FORMULA;
-            case Cell.CELL_TYPE_ERROR:
-            default:
-                return CellType.ERROR;
-        }
+    public ExcelCell(Cell cell) {
+        this.cell = cell;
+
+        if (cell == null)
+            return;
+
+        try {
+            cell.getStringCellValue();
+            cellType = CellType.STRING;
+            return;
+        } catch (IllegalStateException e) {}
+
+        try {
+            cell.getNumericCellValue();
+            cellType = CellType.NUMERIC;
+            return;
+        } catch (IllegalStateException e) {}
+
+        try {
+            cell.getBooleanCellValue();
+            cellType = CellType.BOOLEAN;
+            return;
+        } catch (IllegalStateException e) {}
     }
 
     @Override
@@ -54,15 +69,13 @@ public class ExcelCell implements TableCell {
 
     @Override
     public boolean toBoolean() {
-        switch (cell.getCellType()) {
-            case Cell.CELL_TYPE_BOOLEAN:
+        switch (cellType) {
+            case BOOLEAN:
                 return cell.getBooleanCellValue();
-            case Cell.CELL_TYPE_STRING:
+            case STRING:
                 return Boolean.parseBoolean(cell.getStringCellValue());
-            case Cell.CELL_TYPE_BLANK:
-            case Cell.CELL_TYPE_NUMERIC:
-            case Cell.CELL_TYPE_FORMULA:
-            case Cell.CELL_TYPE_ERROR:
+            case BLANK:
+            case NUMERIC:
             default:
                 return false;
         }
@@ -70,15 +83,13 @@ public class ExcelCell implements TableCell {
 
     @Override
     public double toNumeric() {
-        switch (cell.getCellType()) {
-            case Cell.CELL_TYPE_NUMERIC:
+        switch (cellType) {
+            case NUMERIC:
                 return cell.getNumericCellValue();
-            case Cell.CELL_TYPE_STRING:
+            case STRING:
                 return Double.parseDouble(cell.getStringCellValue());
-            case Cell.CELL_TYPE_BLANK:
-            case Cell.CELL_TYPE_FORMULA:
-            case Cell.CELL_TYPE_ERROR:
-            case Cell.CELL_TYPE_BOOLEAN:
+            case BOOLEAN:
+            case BLANK:
             default:
                 throw new NumberFormatException();
         }
@@ -86,19 +97,41 @@ public class ExcelCell implements TableCell {
 
     @Override
     public String toString() {
-        switch (cell.getCellType()) {
-            case Cell.CELL_TYPE_NUMERIC:
-                return Double.toString(cell.getNumericCellValue());
-            case Cell.CELL_TYPE_STRING:
+        switch (cellType) {
+            case NUMERIC:
+                return numericFormat(cell.getCellStyle().getDataFormatString(), cell.getNumericCellValue());
+            case STRING:
                 return cell.getStringCellValue();
-            case Cell.CELL_TYPE_BOOLEAN:
-                return Boolean.toString(cell.getBooleanCellValue());
-            case Cell.CELL_TYPE_FORMULA:
-                return cell.getStringCellValue();
-            case Cell.CELL_TYPE_BLANK:
-            case Cell.CELL_TYPE_ERROR:
+            case BOOLEAN:
+                return cell.getBooleanCellValue() ? "TRUE" : "FALSE";
+            case BLANK:
             default:
                 return "";
         }
+    }
+
+    /// excel style numeric formatter
+
+    public static Pattern FLOAT_PATTERN = Pattern.compile("^0\\.(0+)_ $");
+    public static Pattern EXP_PATTERN = Pattern.compile("^0\\.(0+)E\\+(0+)$");
+
+    public static String numericFormat(String dataFormat, double value) {
+        Matcher matcher = FLOAT_PATTERN.matcher(dataFormat);
+        if (matcher.matches()) {
+            int precision = matcher.group(1).length();
+            return String.format("%."+precision+"f", value);
+        }
+
+        matcher = EXP_PATTERN.matcher(dataFormat);
+        if (matcher.matches()) {
+            int precision = matcher.group(1).length();
+            return String.format("%."+precision+"E", value);
+        }
+
+        // General
+        String stringRepresentation = Double.toString(value);
+        if (stringRepresentation.endsWith(".0"))
+            return stringRepresentation.substring(0, stringRepresentation.length()-2);
+        return stringRepresentation;
     }
 }

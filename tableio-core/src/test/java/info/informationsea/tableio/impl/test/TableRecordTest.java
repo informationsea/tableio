@@ -23,6 +23,7 @@ import info.informationsea.tableio.TableRecord;
 import info.informationsea.tableio.impl.AdaptiveTableCellImpl;
 import info.informationsea.tableio.impl.TableCellHelper;
 import info.informationsea.tableio.impl.TableRecordImpl;
+import javafx.scene.control.Tab;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -88,7 +89,7 @@ public class TableRecordTest {
 
         for (TableRecord one : record) {
             Assert.assertEquals(expected.length, one.size());
-            Iterator<Object> it = one.iterator();
+            Iterator<TableCell> it = one.iterator();
             for (TableCell anExpected : expected) {
                 Assert.assertEquals(anExpected, it.next());
             }

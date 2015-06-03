@@ -25,8 +25,6 @@ public interface TableCell {
         BOOLEAN,
         STRING,
         NUMERIC,
-        FORMULA,
-        ERROR
     }
 
     /**
@@ -73,7 +71,6 @@ public interface TableCell {
             case BOOLEAN:
                 return toBoolean();
             case STRING:
-            case FORMULA:
                 return toString();
             case BLANK:
             default:

@@ -20,21 +20,24 @@ package info.informationsea.tableio.excel.test;
 
 import info.informationsea.tableio.TableCell;
 import info.informationsea.tableio.TableRecord;
-import info.informationsea.tableio.excel.ExcelSheetReader;
-import info.informationsea.tableio.excel.XlsReader;
-import info.informationsea.tableio.excel.XlsxReader;
+import info.informationsea.tableio.excel.*;
 import info.informationsea.tableio.impl.TableCellHelper;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+@Slf4j
 public class ExcelSheetReaderTest {
     public static final String[] header = new String[]{"Index", "Sepal.Length", "Sepal.Width", "Petal.Length", "Petal.Width", "Species"};
     public static final Object[][] contentHead = new Object[][]{
@@ -83,6 +86,138 @@ public class ExcelSheetReaderTest {
         Assert.assertArrayEquals(new String[]{null, null, null, "D6"}, TableCellHelper.convertFromTableCell(iterator.next().getContent()));
         Assert.assertFalse(iterator.hasNext());
 
+    }
+
+    @Test
+    public void cellTypes() throws Exception {
+        File buildDir = new File(System.getProperty("user.dir"), "build");
+        File testOutput = new File(buildDir, "test-data");
+        testOutput.mkdirs();
+        try (FileOutputStream outputStream = new FileOutputStream(new File(testOutput, "celltypes-result.xlsx"))) {
+            try (XlsxWriter writer = new XlsxWriter(outputStream)) {
+                writer.setAutoResizeColumn(true);
+                XlsxReader reader = new XlsxReader(getClass().getResourceAsStream("cellltypes.xlsx"));
+                reader.setUseHeader(true);
+                writer.printRecord((Object[]) reader.getHeader());
+
+                for (TableRecord record : reader) {
+                    ArrayList<String> cellInfo = new ArrayList<>();
+
+                    for (TableCell cell : record) {
+                        ExcelCell excelCell = (ExcelCell) cell;
+                        cellInfo.add(String.format(
+                                "%s  %s  %d  %s",
+                                excelCell.toString(),
+                                excelCell.getCell().getCellStyle().getDataFormatString(),
+                                excelCell.getCell().getCellStyle().getDataFormat(),
+                                excelCell.getCellType().toString()));
+                    }
+                    writer.printRecord(cellInfo.toArray());
+                }
+            }
+        }
+    }
+
+    @Test
+    public void cellTypes2() throws Exception {
+        XlsReader reader = new XlsReader(getClass().getResourceAsStream("cellltypes.xls"));
+        reader.setUseHeader(true);
+        for (TableRecord record : reader) {
+            log.info("New row");
+            for (TableCell cell : record) {
+                ExcelCell excelCell = (ExcelCell) cell;
+                log.info("cell {} {}", excelCell.toString(), excelCell.getCell().getCellStyle().getDataFormatString());
+            }
+        }
+    }
+
+    @Test
+    public void testCells() throws Exception {
+        XlsxReader reader = new XlsxReader(getClass().getResourceAsStream("cellltypes.xlsx"));
+        reader.setUseHeader(true);
+        Iterator<TableRecord> iterator = reader.iterator();
+
+        { // Verify first line
+            TableRecord record = iterator.next();
+            ExcelCell cell = (ExcelCell) record.get("String");
+            Assert.assertEquals("Hello", cell.toString());
+            Assert.assertEquals(TableCell.CellType.STRING, cell.getCellType());
+
+            cell = (ExcelCell) record.get("Numeric");
+            Assert.assertEquals(2.0, cell.toNumeric(), 0.00000001);
+            Assert.assertEquals(TableCell.CellType.NUMERIC, cell.getCellType());
+            Assert.assertEquals("2", cell.toString());
+
+            cell = (ExcelCell) record.get("Boolean");
+            Assert.assertTrue(cell.toBoolean());
+            Assert.assertEquals(TableCell.CellType.BOOLEAN, cell.getCellType());
+            Assert.assertEquals("TRUE", cell.toString());
+
+            cell = (ExcelCell) record.get("Formula");
+            Assert.assertEquals(5.4, cell.toNumeric(), 0.00000001);
+            Assert.assertEquals(TableCell.CellType.NUMERIC, cell.getCellType());
+            Assert.assertEquals("5.4", cell.toString());
+        }
+
+        { // Verify second line
+            TableRecord record = iterator.next();
+            ExcelCell cell = (ExcelCell) record.get("String");
+            Assert.assertEquals("1.0", cell.toString());
+            Assert.assertEquals(TableCell.CellType.STRING, cell.getCellType());
+
+            cell = (ExcelCell) record.get("Numeric");
+            Assert.assertEquals(3.4, cell.toNumeric(), 0.00000001);
+            Assert.assertEquals(TableCell.CellType.NUMERIC, cell.getCellType());
+            Assert.assertEquals("3.4", cell.toString());
+
+            cell = (ExcelCell) record.get("Boolean");
+            Assert.assertFalse(cell.toBoolean());
+            Assert.assertEquals(TableCell.CellType.BOOLEAN, cell.getCellType());
+            Assert.assertEquals("FALSE", cell.toString());
+
+            cell = (ExcelCell) record.get("Formula");
+            Assert.assertEquals(TableCell.CellType.STRING, cell.getCellType());
+            Assert.assertEquals("Hello1.0", cell.toString());
+        }
+
+        { // Verify third line
+            TableRecord record = iterator.next();
+            ExcelCell cell = (ExcelCell) record.get("String");
+            Assert.assertEquals("2", cell.toString());
+            Assert.assertEquals(TableCell.CellType.STRING, cell.getCellType());
+
+            cell = (ExcelCell) record.get("Numeric");
+            Assert.assertEquals(1.0, cell.toNumeric(), 0.00000001);
+            Assert.assertEquals(TableCell.CellType.NUMERIC, cell.getCellType());
+            Assert.assertEquals("1.00", cell.toString());
+
+            cell = (ExcelCell) record.get("Boolean");
+            Assert.assertFalse(cell.toBoolean());
+            Assert.assertEquals(TableCell.CellType.BOOLEAN, cell.getCellType());
+            Assert.assertEquals("FALSE", cell.toString());
+        }
+
+        { // Verify fourth line
+            TableRecord record = iterator.next();
+            ExcelCell cell = (ExcelCell) record.get("String");
+            Assert.assertEquals("3", cell.toString());
+            Assert.assertEquals(TableCell.CellType.STRING, cell.getCellType());
+
+            cell = (ExcelCell) record.get("Numeric");
+            Assert.assertEquals(2.0, cell.toNumeric(), 0.00000001);
+            Assert.assertEquals(TableCell.CellType.NUMERIC, cell.getCellType());
+            Assert.assertEquals("2.00E+00", cell.toString());
+
+            cell = (ExcelCell) record.get("Boolean");
+            Assert.assertTrue(cell.toBoolean());
+            Assert.assertEquals(TableCell.CellType.BOOLEAN, cell.getCellType());
+            Assert.assertEquals("TRUE", cell.toString());
+
+            cell = (ExcelCell) record.get("Formula");
+            Assert.assertEquals(3.0, cell.toNumeric(), 0.00000001);
+            Assert.assertEquals(TableCell.CellType.NUMERIC, cell.getCellType());
+            Assert.assertEquals("3.00", cell.toString());
+        }
     }
 
     private void testContents(ExcelSheetReader excelSheetReader) {

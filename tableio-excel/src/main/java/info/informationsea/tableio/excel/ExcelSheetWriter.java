@@ -209,7 +209,6 @@ public class ExcelSheetWriter extends AbstractTableWriter {
             case BLANK:
                 cell.setCellType(Cell.CELL_TYPE_BLANK);
                 break;
-            case FORMULA:
             case STRING:
             default:
                 cell.setCellType(Cell.CELL_TYPE_STRING);

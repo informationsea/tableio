@@ -85,7 +85,7 @@ public class TableRecordImpl implements TableRecord {
     }
 
     @Override
-    public Iterator iterator() {
+    public Iterator<TableCell> iterator() {
         return Arrays.asList(mContent).iterator();
     }
 }
