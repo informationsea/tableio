@@ -20,9 +20,12 @@ package info.informationsea.tableio.csv.test;
 
 import au.com.bytecode.opencsv.CSVReader;
 import au.com.bytecode.opencsv.CSVWriter;
+import info.informationsea.tableio.TableCell;
 import info.informationsea.tableio.csv.TableCSVReader;
 import info.informationsea.tableio.csv.TableCSVWriter;
 import info.informationsea.tableio.csv.format.TabDelimitedFormat;
+import info.informationsea.tableio.impl.AdaptiveTableCellImpl;
+import info.informationsea.tableio.impl.TableCellHelper;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -34,8 +37,8 @@ import java.util.List;
 public class TableCSVWriterTest {
 
     public static final Object[][] data = new Object[][]{
-            new Object[]{"A", "B", "C"},
-            new Object[]{"D", "E", "F"},
+            TableCellHelper.convertToTableCell("A", "B", "C"),
+            TableCellHelper.convertToTableCell("D", "E", "F"),
     };
 
     @Test
@@ -46,7 +49,7 @@ public class TableCSVWriterTest {
         csvWriter.close();
 
         TableCSVReader csvReader = new TableCSVReader(new StringReader(stringWriter.toString()));
-        List<Object[]> readData = csvReader.readAll();
+        List<TableCell[]> readData = csvReader.readAll();
 
         for (int i = 0; i < data.length; i++) {
             Assert.assertArrayEquals(data[i], readData.get(i));
@@ -61,7 +64,7 @@ public class TableCSVWriterTest {
         csvWriter.close();
 
         TableCSVReader csvReader = new TableCSVReader(new StringReader(stringWriter.toString()), new TabDelimitedFormat());
-        List<Object[]> readData = csvReader.readAll();
+        List<TableCell[]> readData = csvReader.readAll();
 
         for (int i = 0; i < data.length; i++) {
             Assert.assertArrayEquals(data[i], readData.get(i));
@@ -77,7 +80,7 @@ public class TableCSVWriterTest {
         csvWriter.close();
 
         TableCSVReader csvReader = new TableCSVReader(new CSVReader(new StringReader(stringWriter.toString())));
-        List<Object[]> readData = csvReader.readAll();
+        List<TableCell[]> readData = csvReader.readAll();
 
         for (int i = 0; i < data.length; i++) {
             Assert.assertArrayEquals(data[i], readData.get(i));

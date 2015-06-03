@@ -18,7 +18,9 @@
 
 package info.informationsea.tableio.excel;
 
+import info.informationsea.tableio.TableCell;
 import info.informationsea.tableio.impl.AbstractTableWithHeaderReader;
+import info.informationsea.tableio.impl.AdaptiveTableCellImpl;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.apache.poi.ss.usermodel.Cell;
@@ -33,34 +35,26 @@ public class ExcelSheetReader extends AbstractTableWithHeaderReader {
     private int currentRow = 0;
 
     @Override
-    protected Object[] readNextRow() {
+    protected TableCell[] readNextRow() {
         if (sheet.getLastRowNum() < currentRow)
             return null;
 
         Row row = sheet.getRow(currentRow);
         if (row == null) {
             currentRow += 1;
-            return new Object[0];
+            return new TableCell[0];
         }
 
-        Object[] rowObjects = new Object[row.getLastCellNum()];
+        TableCell[] rowObjects = new TableCell[row.getLastCellNum()];
         for (Cell cell : row) {
-            Object value;
-            switch (cell.getCellType()) {
-                case Cell.CELL_TYPE_BOOLEAN:
-                    value = cell.getBooleanCellValue();
-                    break;
-                case Cell.CELL_TYPE_NUMERIC:
-                    value = cell.getNumericCellValue();
-                    break;
-                case Cell.CELL_TYPE_STRING:
-                default:
-                    value = cell.getStringCellValue();
-                    break;
-            }
-
-            rowObjects[cell.getColumnIndex()] = value;
+            rowObjects[cell.getColumnIndex()] = new ExcelCell(cell);
         }
+
+        for (int i = 0; i < rowObjects.length; i++) {
+            if (rowObjects[i] == null)
+                rowObjects[i] = new AdaptiveTableCellImpl();
+        }
+
         currentRow += 1;
         return rowObjects;
     }

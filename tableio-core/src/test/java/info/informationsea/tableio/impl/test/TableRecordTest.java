@@ -18,7 +18,10 @@
 
 package info.informationsea.tableio.impl.test;
 
+import info.informationsea.tableio.TableCell;
 import info.informationsea.tableio.TableRecord;
+import info.informationsea.tableio.impl.AdaptiveTableCellImpl;
+import info.informationsea.tableio.impl.TableCellHelper;
 import info.informationsea.tableio.impl.TableRecordImpl;
 import org.junit.Assert;
 import org.junit.Before;
@@ -33,9 +36,9 @@ public class TableRecordTest {
     @Before
     public void before() {
         record = new TableRecord[]{
-                new TableRecordImpl(new String[]{"A", "B", "C"}, new Object[]{1, 2., "X"}),
-                new TableRecordImpl(TableRecordImpl.createHeaderMap(new String[]{"A", "B", "C"}), new Object[]{1, 2., "X"}),
-                new TableRecordImpl(new Object[]{1, 2., "X"})
+                new TableRecordImpl(new String[]{"A", "B", "C"}, TableCellHelper.convertToTableCell(1, 2., "X")),
+                new TableRecordImpl(TableRecordImpl.createHeaderMap(new String[]{"A", "B", "C"}), TableCellHelper.convertToTableCell(1, 2., "X")),
+                new TableRecordImpl(TableCellHelper.convertToTableCell(1, 2., "X"))
         };
         withHeader = new TableRecord[]{record[0], record[1]};
     }
@@ -43,25 +46,25 @@ public class TableRecordTest {
     @Test
     public void testGet() {
         for (TableRecord one : record) {
-            Assert.assertEquals(1, one.get(0));
-            Assert.assertEquals(2., one.get(1));
-            Assert.assertEquals("X", one.get(2));
+            Assert.assertEquals(new AdaptiveTableCellImpl(1), one.get(0));
+            Assert.assertEquals(new AdaptiveTableCellImpl(2.), one.get(1));
+            Assert.assertEquals(new AdaptiveTableCellImpl("X"), one.get(2));
         }
     }
 
     @Test
     public void testKeyGet() {
         for (TableRecord one : withHeader) {
-            Assert.assertEquals(1, one.get("A"));
-            Assert.assertEquals(2., one.get("B"));
-            Assert.assertEquals("X", one.get("C"));
+            Assert.assertEquals(new AdaptiveTableCellImpl(1), one.get("A"));
+            Assert.assertEquals(new AdaptiveTableCellImpl(2.), one.get("B"));
+            Assert.assertEquals(new AdaptiveTableCellImpl("X"), one.get("C"));
         }
     }
 
     @Test
     public void testGetContent() {
         for (TableRecord one : record) {
-            Assert.assertArrayEquals(new Object[]{1, 2., "X"}, one.getContent());
+            Assert.assertArrayEquals(TableCellHelper.convertToTableCell(1, 2., "X"), one.getContent());
         }
     }
 
@@ -81,14 +84,28 @@ public class TableRecordTest {
 
     @Test
     public void testIterator() {
-        Object[] expected = new Object[]{1, 2., "X"};
+        TableCell[] expected = TableCellHelper.convertToTableCell(1, 2., "X");
 
         for (TableRecord one : record) {
             Assert.assertEquals(expected.length, one.size());
             Iterator<Object> it = one.iterator();
-            for (int i = 0; i < expected.length; i++) {
-                Assert.assertEquals(expected[i], it.next());
+            for (TableCell anExpected : expected) {
+                Assert.assertEquals(anExpected, it.next());
             }
         }
+    }
+
+    @Test
+    public void testEqual() {
+        Assert.assertEquals(
+                new TableRecordImpl(new String[]{"A", "B", "C"}, TableCellHelper.convertToTableCell(1, 2., "X")),
+                record[0]);
+    }
+
+    @Test
+    public void testEqual2() {
+        Assert.assertNotEquals(
+                new TableRecordImpl(new String[]{"A", "B", "C"}, TableCellHelper.convertToTableCell(1, 2., "X")),
+                record[2]);
     }
 }

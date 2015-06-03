@@ -22,7 +22,7 @@ import java.io.IOException;
 import java.util.List;
 
 public interface TableReader extends Iterable<TableRecord>, AutoCloseable {
-    public String[] getHeader() throws IOException;
+    String[] getHeader() throws IOException;
 
-    public List<Object[]> readAll();
+    List<TableCell[]> readAll();
 }

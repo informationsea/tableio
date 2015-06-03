@@ -23,7 +23,7 @@ public interface TableRecord extends Iterable<Object> {
 
     Object get(String key);
 
-    Object[] getContent();
+    TableCell[] getContent();
 
     String[] getHeader();
 

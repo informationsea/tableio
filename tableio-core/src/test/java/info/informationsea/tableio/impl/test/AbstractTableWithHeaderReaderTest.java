@@ -18,8 +18,11 @@
 
 package info.informationsea.tableio.impl.test;
 
+import info.informationsea.tableio.TableCell;
 import info.informationsea.tableio.TableRecord;
 import info.informationsea.tableio.impl.AbstractTableWithHeaderReader;
+import info.informationsea.tableio.impl.AdaptiveTableCellImpl;
+import info.informationsea.tableio.impl.TableCellHelper;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,10 +34,12 @@ import java.util.NoSuchElementException;
 
 public class AbstractTableWithHeaderReaderTest {
     private AbstractTableWithHeaderReader tableCSVReader;
-    public static final Object[][] contents = new Object[][]{
-            new Object[]{"", "Sepal.Length", "Sepal.Width", "Petal.Length", "Petal.Width", "Species"},
-            new Object[]{"1", "5.1", "3.5", "1.4", "0.2", "setosa"},
-            new Object[]{"2", "4.9", "3", "1.4", "0.2", "setosa"}
+
+    public static final String[] HEADER = new String[]{"", "Sepal.Length", "Sepal.Width", "Petal.Length", "Petal.Width", "Species"};
+    public static final TableCell[][] contents = new TableCell[][]{
+            TableCellHelper.convertToTableCell((Object[]) HEADER),
+            TableCellHelper.convertToTableCell("1", "5.1", "3.5", "1.4", "0.2", "setosa"),
+            TableCellHelper.convertToTableCell("2", "4.9", "3", "1.4", "0.2", "setosa")
     };
 
     @Before
@@ -48,7 +53,7 @@ public class AbstractTableWithHeaderReaderTest {
             private int row = 0;
 
             @Override
-            protected Object[] readNextRow() {
+            protected TableCell[] readNextRow() {
                 if (row >= contents.length)
                     return null;
                 row += 1;
@@ -60,9 +65,9 @@ public class AbstractTableWithHeaderReaderTest {
     @Test
     public void testHeader() throws IOException {
         tableCSVReader.setUseHeader(true);
-        Assert.assertArrayEquals(contents[0], tableCSVReader.getHeader());
+        Assert.assertArrayEquals(HEADER, tableCSVReader.getHeader());
         // call twice to make 100% coverage
-        Assert.assertArrayEquals(contents[0], tableCSVReader.getHeader());
+        Assert.assertArrayEquals(HEADER, tableCSVReader.getHeader());
     }
 
     @Test
@@ -72,17 +77,17 @@ public class AbstractTableWithHeaderReaderTest {
 
         TableRecord record = recordIterator.next();
         Assert.assertArrayEquals(contents[1], record.getContent());
-        Assert.assertArrayEquals(contents[0], record.getHeader());
+        Assert.assertArrayEquals(HEADER, record.getHeader());
 
         Assert.assertTrue(recordIterator.hasNext());
         record = recordIterator.next();
         Assert.assertArrayEquals(contents[2], record.getContent());
-        Assert.assertArrayEquals(contents[0], record.getHeader());
+        Assert.assertArrayEquals(HEADER, record.getHeader());
     }
 
     @Test
     public void testRead2() {
-        List<Object[]> alldata = tableCSVReader.readAll();
+        List<TableCell[]> alldata = tableCSVReader.readAll();
         Assert.assertEquals(3, alldata.size());
         Assert.assertArrayEquals(contents[0], alldata.get(0));
         Assert.assertArrayEquals(contents[1], alldata.get(1));
@@ -93,8 +98,8 @@ public class AbstractTableWithHeaderReaderTest {
     @Test
     public void testRead3() {
         tableCSVReader.setUseHeader(true);
-        Assert.assertArrayEquals(contents[0], tableCSVReader.getHeader());
-        List<Object[]> alldata = tableCSVReader.readAll();
+        Assert.assertArrayEquals(HEADER, tableCSVReader.getHeader());
+        List<TableCell[]> alldata = tableCSVReader.readAll();
         Assert.assertEquals(2, alldata.size());
         Assert.assertArrayEquals(contents[1], alldata.get(0));
         Assert.assertArrayEquals(contents[2], alldata.get(1));

@@ -19,12 +19,14 @@
 
 package info.informationsea.tableio.excel.test;
 
+import info.informationsea.tableio.TableCell;
 import info.informationsea.tableio.TableReader;
 import info.informationsea.tableio.TableWriter;
 import info.informationsea.tableio.excel.ExcelSheetReader;
 import info.informationsea.tableio.excel.ExcelWorkbookWriter;
 import info.informationsea.tableio.excel.XlsWorkbookWriter;
 import info.informationsea.tableio.excel.XlsxWorkbookWriter;
+import info.informationsea.tableio.impl.TableCellHelper;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -88,11 +90,11 @@ public class ExcelWorkbookWriterTest {
     }
 
     private void assertData(TableReader reader, Object[][] data) {
-        List<Object[]> list = reader.readAll();
+        List<TableCell[]> list = reader.readAll();
         Assert.assertEquals(data.length, list.size());
 
         for (int i = 0; i < data.length; i++) {
-            Assert.assertArrayEquals(data[i], list.get(i));
+            Assert.assertArrayEquals(data[i], TableCellHelper.convertFromTableCell(list.get(i)));
         }
     }
 

@@ -18,7 +18,10 @@
 
 package info.informationsea.tableio.csv.test;
 
+import info.informationsea.tableio.TableCell;
 import info.informationsea.tableio.csv.TableCSVReader;
+import info.informationsea.tableio.impl.AdaptiveTableCellImpl;
+import info.informationsea.tableio.impl.TableCellHelper;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -31,8 +34,8 @@ public class TableCSVReaderTest {
     protected TableCSVReader tableCSVReader;
     public static final String[] header = new String[]{"", "Sepal.Length", "Sepal.Width", "Petal.Length", "Petal.Width", "Species"};
     public static final Object[][] contentHead = new Object[][]{
-            new Object[]{"1", "5.1", "3.5", "1.4", "0.2", "setosa"},
-            new Object[]{"2", "4.9", "3", "1.4", "0.2", "setosa"}
+            TableCellHelper.convertToTableCell("1", "5.1", "3.5", "1.4", "0.2", "setosa"),
+            TableCellHelper.convertToTableCell("2", "4.9", "3", "1.4", "0.2", "setosa")
     };
 
     @Before
@@ -49,7 +52,7 @@ public class TableCSVReaderTest {
     public void testRead() {
         tableCSVReader.setUseHeader(true);
         Assert.assertArrayEquals(header, tableCSVReader.getHeader());
-        List<Object[]> alldata = tableCSVReader.readAll();
+        List<TableCell[]> alldata = tableCSVReader.readAll();
         Assert.assertEquals(150, alldata.size());
         Assert.assertArrayEquals(contentHead[0], alldata.get(0));
         Assert.assertArrayEquals(contentHead[1], alldata.get(1));

@@ -18,6 +18,7 @@
 
 package info.informationsea.tableio.impl;
 
+import info.informationsea.tableio.TableCell;
 import info.informationsea.tableio.TableRecord;
 import lombok.EqualsAndHashCode;
 
@@ -30,19 +31,19 @@ import java.util.Map;
 public class TableRecordImpl implements TableRecord {
 
     private Map<String, Integer> mHeader;
-    private Object[] mContent;
+    private TableCell[] mContent;
 
-    public TableRecordImpl(String[] header, Object[] content) {
+    public TableRecordImpl(String[] header, TableCell[] content) {
         mHeader = createHeaderMap(header);
         mContent = content;
     }
 
-    public TableRecordImpl(Map<String, Integer> header, Object[] content) {
+    public TableRecordImpl(Map<String, Integer> header, TableCell[] content) {
         mHeader = header;
         mContent = content;
     }
 
-    public TableRecordImpl(Object[] content) {
+    public TableRecordImpl(TableCell[] content) {
         mContent = content;
     }
 
@@ -55,17 +56,17 @@ public class TableRecordImpl implements TableRecord {
     }
 
     @Override
-    public Object get(int i) {
+    public TableCell get(int i) {
         return mContent[i];
     }
 
     @Override
-    public Object get(String key) {
+    public TableCell get(String key) {
         return mContent[mHeader.get(key)];
     }
 
     @Override
-    public Object[] getContent() {
+    public TableCell[] getContent() {
         return mContent;
     }
 
@@ -84,7 +85,7 @@ public class TableRecordImpl implements TableRecord {
     }
 
     @Override
-    public Iterator<Object> iterator() {
+    public Iterator iterator() {
         return Arrays.asList(mContent).iterator();
     }
 }

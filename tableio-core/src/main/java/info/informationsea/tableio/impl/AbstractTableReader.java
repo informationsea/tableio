@@ -18,6 +18,7 @@
 
 package info.informationsea.tableio.impl;
 
+import info.informationsea.tableio.TableCell;
 import info.informationsea.tableio.TableReader;
 import info.informationsea.tableio.TableRecord;
 
@@ -26,8 +27,8 @@ import java.util.List;
 
 public abstract class AbstractTableReader implements TableReader {
     @Override
-    public List<Object[]> readAll() {
-        ArrayList<Object[]> list = new ArrayList<Object[]>();
+    public List<TableCell[]> readAll() {
+        ArrayList<TableCell[]> list = new ArrayList<>();
         for (TableRecord record : this) {
             list.add(record.getContent());
         }

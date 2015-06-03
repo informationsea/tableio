@@ -19,7 +19,11 @@
 package info.informationsea.tableio.excel.test;
 
 
+import info.informationsea.tableio.TableCell;
+import info.informationsea.tableio.TableRecord;
 import info.informationsea.tableio.excel.*;
+import info.informationsea.tableio.impl.AdaptiveTableCellImpl;
+import info.informationsea.tableio.impl.TableCellHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
@@ -34,6 +38,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 
 @Slf4j
@@ -105,6 +110,19 @@ public class ExcelSheetWriterTest {
     }
 
     @Test
+    public void testWriter6() throws Exception {
+        XSSFWorkbook workbook = new XSSFWorkbook();
+        try (ExcelSheetWriter sheetWriter = new ExcelSheetWriter(workbook.createSheet("Hello"))) {
+            sheetWriter.printRecord(new AdaptiveTableCellImpl("Hello"), new AdaptiveTableCellImpl(1.0), new AdaptiveTableCellImpl(true), null, false);
+        }
+        try (ExcelSheetReader sheetReader = new ExcelSheetReader(workbook.getSheet("Hello"))) {
+            Iterator<TableRecord> iterator = sheetReader.iterator();
+            TableRecord record = iterator.next();
+            Assert.assertArrayEquals(new Object[]{"Hello", 1.0, true, null, false}, TableCellHelper.convertFromTableCell(record.getContent()));
+        }
+    }
+
+    @Test
     public void testPrettyWriter() throws Exception {
         File buildDir = new File(System.getProperty("user.dir"), "build");
         File testOutput = new File(buildDir, "test-data");
@@ -161,10 +179,10 @@ public class ExcelSheetWriterTest {
     }
 
     public void commonAssert(ExcelSheetReader excelSheetReader) {
-        List<Object[]> readData = excelSheetReader.readAll();
+        List<TableCell[]> readData = excelSheetReader.readAll();
 
         for (int i = 0; i < data.length; i++) {
-            Assert.assertArrayEquals(data[i], readData.get(i));
+            Assert.assertArrayEquals(data[i], TableCellHelper.convertFromTableCell(readData.get(i)));
         }
     }
 

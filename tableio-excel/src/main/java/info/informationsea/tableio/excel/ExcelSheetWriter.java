@@ -18,6 +18,7 @@
 
 package info.informationsea.tableio.excel;
 
+import info.informationsea.tableio.TableCell;
 import info.informationsea.tableio.impl.AbstractTableWriter;
 import lombok.*;
 import org.apache.poi.ss.usermodel.*;
@@ -139,7 +140,11 @@ public class ExcelSheetWriter extends AbstractTableWriter {
                 cell = createCell(row, i, (Calendar) values[i]);
             else if (values[i] instanceof Date)
                 cell = createCell(row, i, (Date) values[i]);
-            else
+            else if (values[i] instanceof TableCell)
+                cell = createCell(row, i, (TableCell) values[i]);
+            else if (values[i] == null) {
+                continue;
+            } else
                 cell = createCell(row, i, values[i].toString());
             cell.setCellStyle(style);
         }
@@ -195,6 +200,31 @@ public class ExcelSheetWriter extends AbstractTableWriter {
     private static Cell createCell(Row row, int column, Date value) {
         Cell cell = row.createCell(column, Cell.CELL_TYPE_STRING);
         cell.setCellValue(value);
+        return cell;
+    }
+
+    private static Cell createCell(Row row, int column, TableCell tableCell) {
+        Cell cell = row.createCell(column);
+        switch (tableCell.getCellType()) {
+            case BLANK:
+                cell.setCellType(Cell.CELL_TYPE_BLANK);
+                break;
+            case FORMULA:
+            case STRING:
+            default:
+                cell.setCellType(Cell.CELL_TYPE_STRING);
+                cell.setCellValue(tableCell.toString());
+                break;
+            case NUMERIC:
+                cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+                cell.setCellValue(tableCell.toNumeric());
+                break;
+            case BOOLEAN:
+                cell.setCellType(Cell.CELL_TYPE_BOOLEAN);
+                cell.setCellValue(tableCell.toBoolean());
+                break;
+        }
+
         return cell;
     }
 

@@ -19,11 +19,15 @@
 package info.informationsea.tableio.csv;
 
 import au.com.bytecode.opencsv.CSVReader;
+import info.informationsea.tableio.TableCell;
 import info.informationsea.tableio.csv.format.TableCSVFormat;
 import info.informationsea.tableio.impl.AbstractTableWithHeaderReader;
+import info.informationsea.tableio.impl.AdaptiveTableCellImpl;
+import info.informationsea.tableio.impl.TableCellHelper;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.util.stream.Stream;
 
 public class TableCSVReader extends AbstractTableWithHeaderReader {
 
@@ -47,14 +51,12 @@ public class TableCSVReader extends AbstractTableWithHeaderReader {
     }
 
     @Override
-    protected Object[] readNextRow() {
+    protected TableCell[] readNextRow() {
         try {
             String[] row = csvReader.readNext();
             if (row == null)
                 return null;
-            Object[] objects = new Object[row.length];
-            System.arraycopy(row, 0, objects, 0, row.length);
-            return objects;
+            return Stream.of(row).map(AdaptiveTableCellImpl::new).toArray(TableCell[]::new);
         } catch (IOException ioe) {
             throw new RuntimeException(ioe);
         }

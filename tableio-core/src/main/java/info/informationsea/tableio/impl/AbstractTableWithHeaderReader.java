@@ -18,6 +18,7 @@
 
 package info.informationsea.tableio.impl;
 
+import info.informationsea.tableio.TableCell;
 import info.informationsea.tableio.TableRecord;
 import lombok.Getter;
 
@@ -34,13 +35,15 @@ public abstract class AbstractTableWithHeaderReader extends AbstractTableReader 
     private Map<String, Integer> headerMap = null;
     private RowIterator rowIterator = null;
 
-    protected abstract Object[] readNextRow();
+    protected abstract TableCell[] readNextRow();
 
     private void processFirstRead() {
         if (useHeader) {
-            Object[] row = readNextRow();
+            TableCell[] row = readNextRow();
             header = new String[row.length];
-            System.arraycopy(row, 0, header, 0, row.length);
+            for (int i = 0; i < row.length; i++) {
+                header[i] = row[i].toString();
+            }
             headerMap = TableRecordImpl.createHeaderMap(header);
         }
         firstRead = false;
@@ -78,7 +81,7 @@ public abstract class AbstractTableWithHeaderReader extends AbstractTableReader 
         TableRecord nextObject = null;
 
         private void readNext() {
-            Object[] row = readNextRow();
+            TableCell[] row = readNextRow();
             if (row == null) {
                 nextObject = null;
                 return;

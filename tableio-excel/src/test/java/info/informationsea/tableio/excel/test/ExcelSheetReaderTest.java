@@ -18,10 +18,12 @@
 
 package info.informationsea.tableio.excel.test;
 
+import info.informationsea.tableio.TableCell;
 import info.informationsea.tableio.TableRecord;
 import info.informationsea.tableio.excel.ExcelSheetReader;
 import info.informationsea.tableio.excel.XlsReader;
 import info.informationsea.tableio.excel.XlsxReader;
+import info.informationsea.tableio.impl.TableCellHelper;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -73,12 +75,12 @@ public class ExcelSheetReaderTest {
         XlsxReader reader = new XlsxReader(getClass().getResourceAsStream("nullline.xlsx"));
         Iterator<TableRecord> iterator = reader.iterator();
 
-        Assert.assertArrayEquals(new String[]{"A1", "B1"}, iterator.next().getContent());
-        Assert.assertArrayEquals(new String[]{}, iterator.next().getContent());
-        Assert.assertArrayEquals(new String[]{"A3", "B3", null, "D3"}, iterator.next().getContent());
-        Assert.assertArrayEquals(new String[]{}, iterator.next().getContent());
-        Assert.assertArrayEquals(new String[]{}, iterator.next().getContent());
-        Assert.assertArrayEquals(new String[]{null, null, null, "D6"}, iterator.next().getContent());
+        Assert.assertArrayEquals(new String[]{"A1", "B1"}, TableCellHelper.convertFromTableCell(iterator.next().getContent()));
+        Assert.assertArrayEquals(new String[]{}, TableCellHelper.convertFromTableCell(iterator.next().getContent()));
+        Assert.assertArrayEquals(new String[]{"A3", "B3", null, "D3"}, TableCellHelper.convertFromTableCell(iterator.next().getContent()));
+        Assert.assertArrayEquals(new String[]{}, TableCellHelper.convertFromTableCell(iterator.next().getContent()));
+        Assert.assertArrayEquals(new String[]{}, TableCellHelper.convertFromTableCell(iterator.next().getContent()));
+        Assert.assertArrayEquals(new String[]{null, null, null, "D6"}, TableCellHelper.convertFromTableCell(iterator.next().getContent()));
         Assert.assertFalse(iterator.hasNext());
 
     }
@@ -86,10 +88,10 @@ public class ExcelSheetReaderTest {
     private void testContents(ExcelSheetReader excelSheetReader) {
         excelSheetReader.setUseHeader(true);
         Assert.assertArrayEquals(header, excelSheetReader.getHeader());
-        List<Object[]> alldata = excelSheetReader.readAll();
+        List<TableCell[]> alldata = excelSheetReader.readAll();
         Assert.assertEquals(150, alldata.size());
-        Assert.assertArrayEquals(contentHead[0], alldata.get(0));
-        Assert.assertArrayEquals(contentHead[1], alldata.get(1));
+        Assert.assertArrayEquals(contentHead[0], TableCellHelper.convertFromTableCell(alldata.get(0)));
+        Assert.assertArrayEquals(contentHead[1], TableCellHelper.convertFromTableCell(alldata.get(1)));
         Assert.assertTrue(excelSheetReader.isUseHeader());
         Assert.assertFalse(excelSheetReader.iterator().hasNext());
     }

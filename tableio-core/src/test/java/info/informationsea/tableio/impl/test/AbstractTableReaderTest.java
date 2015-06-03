@@ -18,8 +18,11 @@
 
 package info.informationsea.tableio.impl.test;
 
+import info.informationsea.tableio.TableCell;
 import info.informationsea.tableio.TableRecord;
 import info.informationsea.tableio.impl.AbstractTableReader;
+import info.informationsea.tableio.impl.AdaptiveTableCellImpl;
+import info.informationsea.tableio.impl.TableCellHelper;
 import info.informationsea.tableio.impl.TableRecordImpl;
 import lombok.AllArgsConstructor;
 import org.junit.Assert;
@@ -33,20 +36,20 @@ import java.util.List;
 public class AbstractTableReaderTest {
 
     TableRecord[] records = new TableRecord[]{
-            new TableRecordImpl(new Object[]{1, 2}),
-            new TableRecordImpl(new Object[]{3, 4})
+            new TableRecordImpl(TableCellHelper.convertToTableCell(1, 2)),
+            new TableRecordImpl(TableCellHelper.convertToTableCell(3, 4))
     };
 
     TableReaderImpl tableReader;
 
     @Before
     public void before() {
-        tableReader = new TableReaderImpl(Arrays.<TableRecord>asList(records));
+        tableReader = new TableReaderImpl(Arrays.asList(records));
     }
 
     @Test
     public void testReadAll() {
-        List<Object[]> all = tableReader.readAll();
+        List<TableCell[]> all = tableReader.readAll();
         for (int i = 0; i < records.length; i++) {
             Assert.assertArrayEquals(records[i].getContent(), all.get(i));
         }

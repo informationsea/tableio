@@ -19,17 +19,21 @@
 
 package info.informationsea.tableio.csv.test;
 
+import info.informationsea.tableio.TableCell;
 import info.informationsea.tableio.TableReader;
 import info.informationsea.tableio.TableWriter;
 import info.informationsea.tableio.csv.TableCSVReader;
 import info.informationsea.tableio.csv.ZipCSVTableWorkbookWriter;
 import info.informationsea.tableio.csv.format.TabDelimitedFormat;
+import info.informationsea.tableio.impl.AdaptiveTableCellImpl;
+import info.informationsea.tableio.impl.TableCellHelper;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.zip.ZipFile;
@@ -38,12 +42,12 @@ public class ZipCSVTableWorkbookWriterTest {
 
     public static final Object[][][] data = new Object[][][]{
             new Object[][]{
-                    new Object[]{"A", "B", "C"},
-                    new Object[]{"D", "E", "F"},
+                    TableCellHelper.convertToTableCell("A", "B", "C"),
+                    TableCellHelper.convertToTableCell("D", "E", "F"),
             },
             new Object[][]{
-                    new Object[]{"1", "3", "5"},
-                    new Object[]{"2", "4", "6"},
+                    TableCellHelper.convertToTableCell("1", "3", "5"),
+                    TableCellHelper.convertToTableCell("2", "4", "6"),
             }
     };
 
@@ -124,7 +128,7 @@ public class ZipCSVTableWorkbookWriterTest {
     }
 
     private void assertData(TableReader reader, Object[][] data) {
-        List<Object[]> list = reader.readAll();
+        List<TableCell[]> list = reader.readAll();
         Assert.assertEquals(data.length, list.size());
 
         for (int i = 0; i < data.length; i++) {
