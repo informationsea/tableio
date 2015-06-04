@@ -107,26 +107,13 @@ public class ExcelSheetReaderTest {
                         ExcelCell excelCell = (ExcelCell) cell;
                         cellInfo.add(String.format(
                                 "%s  %s  %d  %s",
-                                excelCell.toString(),
+                                excelCell.getCell().toString(),
                                 excelCell.getCell().getCellStyle().getDataFormatString(),
                                 excelCell.getCell().getCellStyle().getDataFormat(),
                                 excelCell.getCellType().toString()));
                     }
                     writer.printRecord(cellInfo.toArray());
                 }
-            }
-        }
-    }
-
-    @Test
-    public void cellTypes2() throws Exception {
-        XlsReader reader = new XlsReader(getClass().getResourceAsStream("cellltypes.xls"));
-        reader.setUseHeader(true);
-        for (TableRecord record : reader) {
-            log.info("New row");
-            for (TableCell cell : record) {
-                ExcelCell excelCell = (ExcelCell) cell;
-                log.info("cell {} {}", excelCell.toString(), excelCell.getCell().getCellStyle().getDataFormatString());
             }
         }
     }

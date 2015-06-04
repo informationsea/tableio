@@ -33,7 +33,7 @@ public class XlsWriter extends ExcelSheetWriter implements AutoCloseable {
 
     public XlsWriter(OutputStream os) {
         workbook = new HSSFWorkbook();
-        setSheet(workbook.createSheet());
+        setSheet(workbook.createSheet("Sheet1"));
         outputStream = os;
     }
 

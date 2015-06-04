@@ -21,8 +21,10 @@ package info.informationsea.tableio.excel;
 import info.informationsea.tableio.TableCell;
 import info.informationsea.tableio.impl.AbstractTableWriter;
 import lombok.*;
+import org.apache.poi.common.usermodel.*;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.Hyperlink;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFColor;
@@ -65,7 +67,7 @@ public class ExcelSheetWriter extends AbstractTableWriter {
     }
 
     private void initialize() {
-        registerBaseCellStyle(DEFAULT_STYLE, sheet.getWorkbook().createCellStyle());
+        registerBaseCellStyle(DEFAULT_STYLE, null);
         useBaseCellStyle(DEFAULT_STYLE);
     }
 
@@ -81,9 +83,12 @@ public class ExcelSheetWriter extends AbstractTableWriter {
     public void registerBaseCellStyle(Object index, CellStyle style) {
         CellStyle baseCellStyles = style;
 
+        if (baseCellStyles == null)
+            baseCellStyles = sheet.getWorkbook().createCellStyle();
+
         // header style
         CellStyle headerCellStyles = sheet.getWorkbook().createCellStyle();
-        headerCellStyles.cloneStyleFrom(style);
+        headerCellStyles.cloneStyleFrom(baseCellStyles);
         Font headerFont = sheet.getWorkbook().createFont();
         headerFont.setBoldweight(Font.BOLDWEIGHT_BOLD);
         headerCellStyles.setFont(headerFont);
@@ -92,8 +97,8 @@ public class ExcelSheetWriter extends AbstractTableWriter {
 
         // alternative style
         CellStyle alternativeCellStyles = sheet.getWorkbook().createCellStyle();
-        alternativeCellStyles.cloneStyleFrom(style);
-        if (style instanceof XSSFCellStyle) {
+        alternativeCellStyles.cloneStyleFrom(baseCellStyles);
+        if (baseCellStyles instanceof XSSFCellStyle) {
             ((XSSFCellStyle) alternativeCellStyles).setFillForegroundColor(new XSSFColor(new Color(242, 242, 242)));
         } else {
             alternativeCellStyles.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
@@ -114,7 +119,7 @@ public class ExcelSheetWriter extends AbstractTableWriter {
         styleMap.put(CellStyleType.BASE, baseCellStyles);
         styleMap.put(CellStyleType.HEADER, headerCellStyles);
         styleMap.put(CellStyleType.ALTERNATIVE, alternativeCellStyles);
-        styleMap.put(CellStyleType.BASE, baseCellStyles);
+        styleMap.put(CellStyleType.BASE, style);
         styleMap.put(CellStyleType.LINK, linkStyle);
         styleMap.put(CellStyleType.LINK_ALTERNATIVE, alternativeLinkStyle);
         styles.put(index, styleMap);
@@ -142,11 +147,13 @@ public class ExcelSheetWriter extends AbstractTableWriter {
                 cell = createCell(row, i, (Date) values[i]);
             else if (values[i] instanceof TableCell)
                 cell = createCell(row, i, (TableCell) values[i]);
-            else if (values[i] == null) {
+            else if (values[i] == null)
                 continue;
-            } else
+            else
                 cell = createCell(row, i, values[i].toString());
-            cell.setCellStyle(style);
+
+            if (style != null)
+                cell.setCellStyle(style);
         }
 
         maxColumn = Math.max(values.length, maxColumn);
@@ -205,23 +212,76 @@ public class ExcelSheetWriter extends AbstractTableWriter {
 
     private static Cell createCell(Row row, int column, TableCell tableCell) {
         Cell cell = row.createCell(column);
-        switch (tableCell.getCellType()) {
-            case BLANK:
-                cell.setCellType(Cell.CELL_TYPE_BLANK);
-                break;
-            case STRING:
-            default:
-                cell.setCellType(Cell.CELL_TYPE_STRING);
-                cell.setCellValue(tableCell.toString());
-                break;
-            case NUMERIC:
-                cell.setCellType(Cell.CELL_TYPE_NUMERIC);
-                cell.setCellValue(tableCell.toNumeric());
-                break;
-            case BOOLEAN:
-                cell.setCellType(Cell.CELL_TYPE_BOOLEAN);
-                cell.setCellValue(tableCell.toBoolean());
-                break;
+
+        if (tableCell instanceof ExcelCell) {
+            Cell originalCell = ((ExcelCell)tableCell).getCell();
+            CellStyle cellStyle = row.getSheet().getWorkbook().createCellStyle();
+            cellStyle.cloneStyleFrom(originalCell.getCellStyle());
+            cell.setCellStyle(cellStyle);
+            cell.setCellType(originalCell.getCellType());
+
+            switch (originalCell.getCellType()) {
+                case Cell.CELL_TYPE_FORMULA: {
+                    switch (tableCell.getCellType()) {
+                        case NUMERIC:
+                            cell.setCellValue(tableCell.toNumeric());
+                            break;
+                        case BOOLEAN:
+                            cell.setCellValue(tableCell.toBoolean());
+                            break;
+                        case STRING:
+                            cell.setCellValue(tableCell.toString());
+                            break;
+                    }
+                    cell.setCellFormula(originalCell.getCellFormula());
+                    break;
+                }
+                case Cell.CELL_TYPE_BOOLEAN: {
+                    cell.setCellValue(originalCell.getBooleanCellValue());
+                    break;
+                }
+                case Cell.CELL_TYPE_NUMERIC: {
+                    cell.setCellValue(originalCell.getNumericCellValue());
+                    break;
+                }
+                case Cell.CELL_TYPE_STRING: {
+                    cell.setCellValue(originalCell.getRichStringCellValue());
+                    break;
+                }
+            }
+
+            Hyperlink originalLink = originalCell.getHyperlink();
+            if (originalLink != null) {
+                Hyperlink link = row.getSheet().getWorkbook().getCreationHelper().createHyperlink(originalLink.getType());
+                link.setFirstColumn(originalLink.getFirstColumn());
+                link.setFirstRow(originalLink.getFirstRow());
+                link.setLastColumn(originalLink.getLastColumn());
+                link.setLastRow(originalLink.getLastRow());
+                link.setAddress(originalLink.getAddress());
+                link.setLabel(originalLink.getLabel());
+                cell.setHyperlink(link);
+            }
+
+
+        } else {
+            switch (tableCell.getCellType()) {
+                case BLANK:
+                    cell.setCellType(Cell.CELL_TYPE_BLANK);
+                    break;
+                case STRING:
+                default:
+                    cell.setCellType(Cell.CELL_TYPE_STRING);
+                    cell.setCellValue(tableCell.toString());
+                    break;
+                case NUMERIC:
+                    cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+                    cell.setCellValue(tableCell.toNumeric());
+                    break;
+                case BOOLEAN:
+                    cell.setCellType(Cell.CELL_TYPE_BOOLEAN);
+                    cell.setCellValue(tableCell.toBoolean());
+                    break;
+            }
         }
 
         return cell;
