@@ -33,6 +33,7 @@ public class TableCellTest {
         Assert.assertEquals("", empty.toString());
         Assert.assertTrue(empty.isEmptyCell());
         Assert.assertEquals(TableCell.CellType.BLANK, empty.getCellType());
+        Assert.assertNull(empty.toObject());
     }
 
     @Test(expected = NumberFormatException.class)
@@ -71,6 +72,7 @@ public class TableCellTest {
         AdaptiveTableCellImpl str = new AdaptiveTableCellImpl("Hello");
         Assert.assertFalse(str.toBoolean());
         Assert.assertEquals("Hello", str.toString());
+        Assert.assertEquals("Hello", str.toObject());
         Assert.assertFalse(str.isEmptyCell());
         Assert.assertEquals(TableCell.CellType.STRING, str.getCellType());
     }
