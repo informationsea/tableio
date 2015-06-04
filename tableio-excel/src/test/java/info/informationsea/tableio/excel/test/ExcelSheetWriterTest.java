@@ -187,6 +187,22 @@ public class ExcelSheetWriterTest {
         try (XlsxWriter writer = new XlsxWriter(outputStream)) {
             try (XlsxReader reader = new XlsxReader(getClass().getResourceAsStream("cellltypes.xlsx"))) {
                 for (TableRecord record : reader) {
+                    writer.printRecord((Object[]) record.getContent());
+                }
+            }
+        }
+
+    }
+
+    @Test
+    public void testCopyTable2() throws Exception {
+        File buildDir = new File(System.getProperty("user.dir"), "build");
+        File testOutput = new File(buildDir, "test-data");
+        testOutput.mkdirs();
+        FileOutputStream outputStream = new FileOutputStream(new File(testOutput, "copied.xls"));
+        try (XlsWriter writer = new XlsWriter(outputStream)) {
+            try (XlsxReader reader = new XlsxReader(getClass().getResourceAsStream("cellltypes.xlsx"))) {
+                for (TableRecord record : reader) {
                     writer.printRecord((Object[])record.getContent());
                 }
             }

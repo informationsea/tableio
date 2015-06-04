@@ -216,7 +216,7 @@ public class ExcelSheetWriter extends AbstractTableWriter {
         if (tableCell instanceof ExcelCell) {
             Cell originalCell = ((ExcelCell)tableCell).getCell();
             CellStyle cellStyle = row.getSheet().getWorkbook().createCellStyle();
-            cellStyle.cloneStyleFrom(originalCell.getCellStyle());
+            copyCellStyle(cellStyle, originalCell.getCellStyle(), row.getSheet().getWorkbook(), originalCell.getSheet().getWorkbook());
             cell.setCellStyle(cellStyle);
             cell.setCellType(originalCell.getCellType());
 
@@ -245,7 +245,11 @@ public class ExcelSheetWriter extends AbstractTableWriter {
                     break;
                 }
                 case Cell.CELL_TYPE_STRING: {
-                    cell.setCellValue(originalCell.getRichStringCellValue());
+                    if (cell.getCellStyle().getClass().equals(originalCell.getCellStyle().getClass())) {
+                        cell.setCellValue(originalCell.getRichStringCellValue());
+                    } else {
+                        cell.setCellValue(originalCell.getStringCellValue());
+                    }
                     break;
                 }
             }
@@ -287,5 +291,27 @@ public class ExcelSheetWriter extends AbstractTableWriter {
         return cell;
     }
 
+    private static void copyCellStyle(CellStyle dest, CellStyle source, Workbook destWorkbook, Workbook sourceWorkbook) {
+        if (dest.getClass().equals(source.getClass())) {
+            dest.cloneStyleFrom(source);
+            return;
+        }
+
+        dest.setBorderTop(source.getBorderTop());
+        dest.setBorderBottom(source.getBorderBottom());
+        dest.setBorderLeft(source.getBorderLeft());
+        dest.setBorderRight(source.getBorderRight());
+        dest.setDataFormat(source.getDataFormat());
+
+        Font newFont = destWorkbook.createFont();
+        Font originalFont = sourceWorkbook.getFontAt(source.getFontIndex());
+        newFont.setBoldweight(originalFont.getBoldweight());
+        newFont.setUnderline(originalFont.getUnderline());
+        newFont.setItalic(originalFont.getItalic());
+        newFont.setFontHeight(originalFont.getFontHeight());
+        newFont.setFontHeightInPoints(originalFont.getFontHeightInPoints());
+        newFont.setFontName(originalFont.getFontName());
+        dest.setFont(newFont);
+    }
 
 }
