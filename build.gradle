@@ -46,7 +46,7 @@ allprojects {
 
     sourceCompatibility = 1.8
     group = 'info.informationsea.tableio'
-    version = '0.1.0'
+    version = '0.1.1-SNAPSHOT'
 }
 
 

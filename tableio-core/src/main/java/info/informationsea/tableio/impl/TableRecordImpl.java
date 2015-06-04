@@ -34,13 +34,20 @@ public class TableRecordImpl implements TableRecord {
     private TableCell[] mContent;
 
     public TableRecordImpl(String[] header, TableCell[] content) {
-        mHeader = createHeaderMap(header);
-        mContent = content;
+        this(createHeaderMap(header), content);
     }
 
     public TableRecordImpl(Map<String, Integer> header, TableCell[] content) {
         mHeader = header;
-        mContent = content;
+        if (content.length >= header.size()) {
+            mContent = content;
+        } else {
+            mContent = new TableCell[header.size()];
+            System.arraycopy(content, 0, mContent, 0, content.length);
+            for (int i = content.length; i < header.size(); i++) {
+                mContent[i] = new AdaptiveTableCellImpl();
+            }
+        }
     }
 
     public TableRecordImpl(TableCell[] content) {

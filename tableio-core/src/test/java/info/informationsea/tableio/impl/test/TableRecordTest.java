@@ -109,4 +109,10 @@ public class TableRecordTest {
                 new TableRecordImpl(new String[]{"A", "B", "C"}, TableCellHelper.convertToTableCell(1, 2., "X")),
                 record[2]);
     }
+
+    @Test
+    public void testSmallRowSize() {
+        TableRecord record = new TableRecordImpl(new String[]{"A", "B", "C"}, TableCellHelper.convertToTableCell(1, 2));
+        Assert.assertEquals(3, record.size());
+    }
 }
