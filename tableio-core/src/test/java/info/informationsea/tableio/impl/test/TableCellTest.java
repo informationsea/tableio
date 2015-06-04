@@ -130,4 +130,9 @@ public class TableCellTest {
     public void testInvalidArgument() {
         new AdaptiveTableCellImpl(new Date());
     }
+
+    @Test
+    public void testFormula() {
+        Assert.assertFalse(new AdaptiveTableCellImpl("Hello").getFormula().isPresent());
+    }
 }

@@ -164,20 +164,25 @@ public class ExcelSheetReaderTest {
             ExcelCell cell = (ExcelCell) record.get("String");
             Assert.assertEquals("1.0", cell.toString());
             Assert.assertEquals(TableCell.CellType.STRING, cell.getCellType());
+            Assert.assertFalse(cell.getFormula().isPresent());
 
             cell = (ExcelCell) record.get("Numeric");
             Assert.assertEquals(3.4, cell.toNumeric(), 0.00000001);
             Assert.assertEquals(TableCell.CellType.NUMERIC, cell.getCellType());
             Assert.assertEquals("3.4", cell.toString());
+            Assert.assertFalse(cell.getFormula().isPresent());
 
             cell = (ExcelCell) record.get("Boolean");
             Assert.assertFalse(cell.toBoolean());
             Assert.assertEquals(TableCell.CellType.BOOLEAN, cell.getCellType());
             Assert.assertEquals("FALSE", cell.toString());
+            Assert.assertFalse(cell.getFormula().isPresent());
 
             cell = (ExcelCell) record.get("Formula");
             Assert.assertEquals(TableCell.CellType.STRING, cell.getCellType());
             Assert.assertEquals("Hello1.0", cell.toString());
+            Assert.assertTrue(cell.getFormula().isPresent());
+            Assert.assertEquals("A2&A3", cell.getFormula().get());
         }
 
         { // Verify third line

@@ -24,6 +24,7 @@ import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @EqualsAndHashCode
 public class AdaptiveTableCellImpl implements TableCell {
@@ -105,5 +106,10 @@ public class AdaptiveTableCellImpl implements TableCell {
             default:
                 return "";
         }
+    }
+
+    @Override
+    public Optional<String> getFormula() {
+        return Optional.<String>empty();
     }
 }

@@ -26,6 +26,7 @@ import lombok.Value;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -108,6 +109,14 @@ public class ExcelCell implements TableCell {
             default:
                 return "";
         }
+    }
+
+    @Override
+    public Optional<String> getFormula() {
+        if (cell.getCellType() == Cell.CELL_TYPE_FORMULA) {
+            return Optional.of(cell.getCellFormula());
+        }
+        return Optional.empty();
     }
 
     /// excel style numeric formatter
