@@ -19,6 +19,7 @@
 package info.informationsea.tableio.csv.format;
 
 import au.com.bytecode.opencsv.CSVParser;
+import au.com.bytecode.opencsv.CSVWriter;
 import lombok.NoArgsConstructor;
 import lombok.Value;
 
@@ -26,7 +27,7 @@ import lombok.Value;
 @NoArgsConstructor
 public class TabDelimitedFormat implements TableCSVFormat {
     private char separator = '\t';
-    private char quoteChar = CSVParser.DEFAULT_QUOTE_CHARACTER;
-    private char escape = CSVParser.DEFAULT_ESCAPE_CHARACTER;
+    private char quoteChar = CSVWriter.NO_QUOTE_CHARACTER;
+    private char escape = CSVWriter.NO_ESCAPE_CHARACTER;
     private boolean strictQuotes = false;
 }
