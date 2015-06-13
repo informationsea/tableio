@@ -86,4 +86,15 @@ public class TableCSVWriterTest {
             Assert.assertArrayEquals(data[i], readData.get(i));
         }
     }
+
+    @Test
+    public void testWriter4() throws Exception {
+        StringWriter stringWriter = new StringWriter();
+        TableCSVWriter csvWriter = new TableCSVWriter(stringWriter, new TabDelimitedFormat());
+        csvWriter.printRecord("A", "B", "C");
+        csvWriter.printRecord(1, 2.0, 4);
+        csvWriter.close();
+
+        Assert.assertEquals("A\tB\tC\n1\t2.0\t4\n", stringWriter.toString());
+    }
 }
