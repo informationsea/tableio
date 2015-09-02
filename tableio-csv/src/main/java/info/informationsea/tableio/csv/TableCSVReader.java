@@ -23,11 +23,9 @@ import info.informationsea.tableio.TableCell;
 import info.informationsea.tableio.csv.format.TableCSVFormat;
 import info.informationsea.tableio.impl.AbstractTableWithHeaderReader;
 import info.informationsea.tableio.impl.AdaptiveTableCellImpl;
-import info.informationsea.tableio.impl.TableCellHelper;
 
 import java.io.IOException;
 import java.io.Reader;
-import java.util.stream.Stream;
 
 public class TableCSVReader extends AbstractTableWithHeaderReader {
 
@@ -56,7 +54,11 @@ public class TableCSVReader extends AbstractTableWithHeaderReader {
             String[] row = csvReader.readNext();
             if (row == null)
                 return null;
-            return Stream.of(row).map(AdaptiveTableCellImpl::new).toArray(TableCell[]::new);
+            TableCell[] tableCells = new TableCell[row.length];
+            for (int i = 0; i < row.length; i++) {
+                tableCells[i] = new AdaptiveTableCellImpl(row[i]);
+            }
+            return tableCells;
         } catch (IOException ioe) {
             throw new RuntimeException(ioe);
         }

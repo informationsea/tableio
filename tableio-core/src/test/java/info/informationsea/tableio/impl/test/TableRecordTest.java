@@ -23,7 +23,6 @@ import info.informationsea.tableio.TableRecord;
 import info.informationsea.tableio.impl.AdaptiveTableCellImpl;
 import info.informationsea.tableio.impl.TableCellHelper;
 import info.informationsea.tableio.impl.TableRecordImpl;
-import javafx.scene.control.Tab;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
