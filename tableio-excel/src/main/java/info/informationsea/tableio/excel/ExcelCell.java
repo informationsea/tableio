@@ -19,14 +19,10 @@
 package info.informationsea.tableio.excel;
 
 import info.informationsea.tableio.TableCell;
-import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.Value;
 import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellStyle;
 
-import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -112,11 +108,11 @@ public class ExcelCell implements TableCell {
     }
 
     @Override
-    public Optional<String> getFormula() {
+    public String getFormula() {
         if (cell.getCellType() == Cell.CELL_TYPE_FORMULA) {
-            return Optional.of(cell.getCellFormula());
+            return cell.getCellFormula();
         }
-        return Optional.empty();
+        return null;
     }
 
     /// excel style numeric formatter
@@ -142,5 +138,21 @@ public class ExcelCell implements TableCell {
         if (stringRepresentation.endsWith(".0"))
             return stringRepresentation.substring(0, stringRepresentation.length()-2);
         return stringRepresentation;
+    }
+
+
+    @Override
+    public Object toObject() {
+        switch (getCellType()) {
+            case NUMERIC:
+                return toNumeric();
+            case BOOLEAN:
+                return toBoolean();
+            case STRING:
+                return toString();
+            case BLANK:
+            default:
+                return null;
+        }
     }
 }

@@ -135,6 +135,6 @@ public class TableCellTest {
 
     @Test
     public void testFormula() {
-        Assert.assertFalse(new AdaptiveTableCellImpl("Hello").getFormula().isPresent());
+        Assert.assertFalse(new AdaptiveTableCellImpl("Hello").getFormula() != null);
     }
 }

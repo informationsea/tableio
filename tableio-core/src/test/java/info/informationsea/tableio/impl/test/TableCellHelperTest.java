@@ -25,6 +25,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.Arrays;
+import java.util.List;
 
 import static org.junit.Assert.*;
 
@@ -40,8 +41,8 @@ public class TableCellHelperTest {
     @Test
     public void testConvertToTableCell1() throws Exception {
         Assert.assertEquals(
-                Arrays.asList(new AdaptiveTableCellImpl(true), new AdaptiveTableCellImpl(1.0)),
-                TableCellHelper.convertToTableCell(Arrays.asList(true, 1.0)));
+                Arrays.<TableCell>asList(new AdaptiveTableCellImpl(true), new AdaptiveTableCellImpl(1.0)),
+                TableCellHelper.convertToTableCell((Arrays.<Object>asList(true, 1.0))));
     }
 
     @Test
@@ -53,6 +54,6 @@ public class TableCellHelperTest {
     @Test
     public void testConvertFromTableCell1() throws Exception {
         Assert.assertEquals(Arrays.asList(1.0, false),
-                TableCellHelper.convertFromTableCell(Arrays.asList(new AdaptiveTableCellImpl(1.0), new AdaptiveTableCellImpl(false))));
+                TableCellHelper.convertFromTableCell(Arrays.<TableCell>asList(new AdaptiveTableCellImpl(1.0), new AdaptiveTableCellImpl(false))));
     }
 }

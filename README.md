@@ -1,9 +1,13 @@
-Table/IO
+Table/IO [![Build Status](https://travis-ci.org/informationsea/tableio.svg?branch=master)](https://travis-ci.org/informationsea/tableio)
 ========
 
-[![Build Status](https://travis-ci.org/informationsea/tableio.svg?branch=master)](https://travis-ci.org/informationsea/tableio)
-
 Uniformed Table Reader/Writer for CSV, TSV and Excel
+
+Requirements
+------------
+
+* Apache POI
+* Java 7 or later
 
 Documents
 ---------

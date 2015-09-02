@@ -22,10 +22,6 @@ import info.informationsea.tableio.TableCell;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
 @EqualsAndHashCode
 public class AdaptiveTableCellImpl implements TableCell {
 
@@ -109,7 +105,22 @@ public class AdaptiveTableCellImpl implements TableCell {
     }
 
     @Override
-    public Optional<String> getFormula() {
-        return Optional.<String>empty();
+    public String getFormula() {
+        return null;
+    }
+
+    @Override
+    public Object toObject() {
+        switch (getCellType()) {
+            case NUMERIC:
+                return toNumeric();
+            case BOOLEAN:
+                return toBoolean();
+            case STRING:
+                return toString();
+            case BLANK:
+            default:
+                return null;
+        }
     }
 }

@@ -18,8 +18,6 @@
 
 package info.informationsea.tableio;
 
-import java.util.Optional;
-
 public interface TableCell {
 
     enum CellType {
@@ -66,12 +64,15 @@ public interface TableCell {
      * Get a formula if this cell has a formula
      * @return a formula
      */
-    Optional<String> getFormula();
+    String getFormula();
 
     /**
      * Suitable Object representation
      * @return One of Boolean, Double or String
      */
+    Object toObject();
+
+    /*
     default Object toObject() {
         switch (getCellType()) {
             case NUMERIC:
@@ -85,4 +86,5 @@ public interface TableCell {
                 return null;
         }
     }
+    */
 }

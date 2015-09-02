@@ -22,28 +22,41 @@ import info.informationsea.tableio.TableCell;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class TableCellHelper {
 
     public static TableCell[] convertToTableCell(Object... objs) {
-        return Stream.of(objs).map(AdaptiveTableCellImpl::new).toArray(TableCell[]::new);
+        TableCell[] result = new TableCell[objs.length];
+        for (int i = 0; i < objs.length; i++) {
+            result[i] = new AdaptiveTableCellImpl(objs[i]);
+        }
+        return result;
     }
 
     public static List<TableCell> convertToTableCell(List<Object> objs) {
-        return objs.stream().map(AdaptiveTableCellImpl::new).collect(Collectors.toList());
+        ArrayList<TableCell> result = new ArrayList<>();
+        for (Object one : objs) {
+            result.add(new AdaptiveTableCellImpl(one));
+        }
+        return result;
     }
 
     public static Object[] convertFromTableCell(TableCell ...cells) {
-        return Stream.of(cells).map(TableCell::toObject).toArray(Object[]::new);
+        Object[] result = new Object[cells.length];
+        for (int i = 0; i < cells.length; i++) {
+            result[i] = cells[i].toObject();
+        }
+        return result;
     }
 
     public static List<Object> convertFromTableCell(List<TableCell> cells) {
-        return cells.stream().map(TableCell::toObject).collect(Collectors.toList());
+        ArrayList<Object> result = new ArrayList<>();
+        for (TableCell one : cells) {
+            result.add(one.toObject());
+        }
+        return result;
     }
 }
