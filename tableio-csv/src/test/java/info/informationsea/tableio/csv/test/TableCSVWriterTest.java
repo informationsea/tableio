@@ -24,7 +24,6 @@ import info.informationsea.tableio.TableCell;
 import info.informationsea.tableio.csv.TableCSVReader;
 import info.informationsea.tableio.csv.TableCSVWriter;
 import info.informationsea.tableio.csv.format.TabDelimitedFormat;
-import info.informationsea.tableio.impl.AdaptiveTableCellImpl;
 import info.informationsea.tableio.impl.TableCellHelper;
 import org.junit.Assert;
 import org.junit.Test;

@@ -18,7 +18,6 @@
 
 package info.informationsea.tableio.csv.format;
 
-import au.com.bytecode.opencsv.CSVParser;
 import au.com.bytecode.opencsv.CSVWriter;
 import lombok.NoArgsConstructor;
 import lombok.Value;

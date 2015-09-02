@@ -25,15 +25,14 @@ import info.informationsea.tableio.TableWriter;
 import info.informationsea.tableio.csv.TableCSVReader;
 import info.informationsea.tableio.csv.ZipCSVTableWorkbookWriter;
 import info.informationsea.tableio.csv.format.TabDelimitedFormat;
-import info.informationsea.tableio.impl.AdaptiveTableCellImpl;
 import info.informationsea.tableio.impl.TableCellHelper;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.io.*;
+import java.io.FileOutputStream;
+import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.zip.ZipFile;

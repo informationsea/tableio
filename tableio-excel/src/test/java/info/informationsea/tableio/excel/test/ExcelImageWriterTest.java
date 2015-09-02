@@ -23,8 +23,6 @@ import info.informationsea.tableio.ImageSheetWriter;
 import info.informationsea.tableio.TableWorkbookWriter;
 import info.informationsea.tableio.excel.ExcelImageSheetWriter;
 import info.informationsea.tableio.excel.ExcelWorkbookWriter;
-import info.informationsea.tableio.excel.XlsxWorkbookWriter;
-import org.apache.poi.ss.usermodel.Picture;
 import org.apache.poi.ss.usermodel.PictureData;
 import org.apache.poi.util.IOUtils;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
@@ -32,9 +30,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.List;
 
 public class ExcelImageWriterTest {

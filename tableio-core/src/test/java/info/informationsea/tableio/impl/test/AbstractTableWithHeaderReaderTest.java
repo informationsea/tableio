@@ -21,7 +21,6 @@ package info.informationsea.tableio.impl.test;
 import info.informationsea.tableio.TableCell;
 import info.informationsea.tableio.TableRecord;
 import info.informationsea.tableio.impl.AbstractTableWithHeaderReader;
-import info.informationsea.tableio.impl.AdaptiveTableCellImpl;
 import info.informationsea.tableio.impl.TableCellHelper;
 import org.junit.Assert;
 import org.junit.Before;

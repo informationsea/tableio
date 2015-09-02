@@ -20,7 +20,6 @@ package info.informationsea.tableio.csv.test;
 
 import info.informationsea.tableio.TableCell;
 import info.informationsea.tableio.csv.TableCSVReader;
-import info.informationsea.tableio.impl.AdaptiveTableCellImpl;
 import info.informationsea.tableio.impl.TableCellHelper;
 import org.junit.After;
 import org.junit.Assert;
