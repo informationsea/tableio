@@ -28,7 +28,7 @@ public interface TableWorkbookWriter extends AutoCloseable {
      * Create a new table writer. Please close previous table writer before or image writer you create new table writer.
      * @param tableName a name of new table
      * @return a table writer
-      @throws Exception
+      @throws Exception failed to create table
      */
     TableWriter createTable(String tableName) throws Exception;
 
@@ -36,7 +36,7 @@ public interface TableWorkbookWriter extends AutoCloseable {
      * Create a new image sheet writer. Please close previous table writer or image writer before you create new table writer.
      * @param sheetName a name of new sheet
      * @return a image writer
-     * @throws Exception
+     * @throws Exception failed to create table
      */
     ImageSheetWriter createImageSheet(String sheetName) throws Exception;
 }

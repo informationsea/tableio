@@ -20,18 +20,19 @@ package info.informationsea.tableio;
 
 public interface TableCell {
 
-    enum CellType {
+    enum TableCellType {
         BLANK,
         BOOLEAN,
         STRING,
         NUMERIC,
+        FORMULA
     }
 
     /**
      * Return a cell type.
      * @return a type of this cell
      */
-    CellType getCellType();
+    TableCellType getTableCellType();
 
     /**
      *
@@ -74,7 +75,7 @@ public interface TableCell {
 
     /*
     default Object toObject() {
-        switch (getCellType()) {
+        switch (getTableCellType()) {
             case NUMERIC:
                 return toNumeric();
             case BOOLEAN:

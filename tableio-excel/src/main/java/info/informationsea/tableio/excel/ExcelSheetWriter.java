@@ -24,6 +24,7 @@ import lombok.*;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFColor;
 
@@ -56,8 +57,6 @@ public class ExcelSheetWriter extends AbstractTableWriter {
     private Object currentStyle = DEFAULT_STYLE;
     private Map<Object, Map<CellStyleType, CellStyle>> styles = new HashMap<>();
 
-
-
     public ExcelSheetWriter(Sheet sheet) {
         setSheet(sheet);
     }
@@ -65,6 +64,10 @@ public class ExcelSheetWriter extends AbstractTableWriter {
     private void initialize() {
         registerBaseCellStyle(DEFAULT_STYLE, null);
         useBaseCellStyle(DEFAULT_STYLE);
+
+        if (this.sheet instanceof SXSSFSheet) {
+            ((SXSSFSheet) this.sheet).trackAllColumnsForAutoSizing();
+        }
     }
 
     protected void setSheet(Sheet sheet) {
@@ -86,9 +89,9 @@ public class ExcelSheetWriter extends AbstractTableWriter {
         CellStyle headerCellStyles = sheet.getWorkbook().createCellStyle();
         headerCellStyles.cloneStyleFrom(baseCellStyles);
         Font headerFont = sheet.getWorkbook().createFont();
-        headerFont.setBoldweight(Font.BOLDWEIGHT_BOLD);
+        headerFont.setBold(true);
         headerCellStyles.setFont(headerFont);
-        headerCellStyles.setFillPattern(CellStyle.SOLID_FOREGROUND);
+        headerCellStyles.setFillPattern(FillPatternType.SOLID_FOREGROUND);
         headerCellStyles.setFillForegroundColor(IndexedColors.WHITE.getIndex());
 
         // alternative style
@@ -99,7 +102,7 @@ public class ExcelSheetWriter extends AbstractTableWriter {
         } else {
             alternativeCellStyles.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
         }
-        alternativeCellStyles.setFillPattern(CellStyle.SOLID_FOREGROUND);
+        alternativeCellStyles.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 
         // link style
         Font linkFont = sheet.getWorkbook().createFont();
@@ -112,7 +115,7 @@ public class ExcelSheetWriter extends AbstractTableWriter {
         alternativeLinkStyle.setFont(linkFont);
 
         Map<CellStyleType, CellStyle> styleMap = new HashMap<>();
-        styleMap.put(CellStyleType.BASE, baseCellStyles);
+        //styleMap.put(CellStyleType.BASE, baseCellStyles);
         styleMap.put(CellStyleType.HEADER, headerCellStyles);
         styleMap.put(CellStyleType.ALTERNATIVE, alternativeCellStyles);
         styleMap.put(CellStyleType.BASE, style);
@@ -164,7 +167,7 @@ public class ExcelSheetWriter extends AbstractTableWriter {
     }
 
     @Override
-    public void close() throws Exception{
+    public void close() throws Exception {
         if (autoFilter)
             sheet.setAutoFilter(new CellRangeAddress(0, currentRow-1, 0, maxColumn-1));
         if (enableHeaderStyle)
@@ -174,34 +177,35 @@ public class ExcelSheetWriter extends AbstractTableWriter {
                 sheet.autoSizeColumn(i);
             }
         }
+        sheet.getWorkbook().setForceFormulaRecalculation(true);
     }
 
     private static Cell createCell(Row row, int column, boolean value) {
-        Cell cell = row.createCell(column, Cell.CELL_TYPE_BOOLEAN);
+        Cell cell = row.createCell(column, CellType.BOOLEAN);
         cell.setCellValue(value);
         return cell;
     }
 
     private static Cell createCell(Row row, int column, double value) {
-        Cell cell = row.createCell(column, Cell.CELL_TYPE_NUMERIC);
+        Cell cell = row.createCell(column, CellType.NUMERIC);
         cell.setCellValue(value);
         return cell;
     }
 
     private static Cell createCell(Row row, int column, String value) {
-        Cell cell = row.createCell(column, Cell.CELL_TYPE_STRING);
+        Cell cell = row.createCell(column, CellType.STRING);
         cell.setCellValue(value);
         return cell;
     }
 
     private static Cell createCell(Row row, int column, Calendar value) {
-        Cell cell = row.createCell(column, Cell.CELL_TYPE_STRING);
+        Cell cell = row.createCell(column, CellType.STRING);
         cell.setCellValue(value);
         return cell;
     }
 
     private static Cell createCell(Row row, int column, Date value) {
-        Cell cell = row.createCell(column, Cell.CELL_TYPE_STRING);
+        Cell cell = row.createCell(column, CellType.STRING);
         cell.setCellValue(value);
         return cell;
     }
@@ -214,33 +218,22 @@ public class ExcelSheetWriter extends AbstractTableWriter {
             CellStyle cellStyle = row.getSheet().getWorkbook().createCellStyle();
             copyCellStyle(cellStyle, originalCell.getCellStyle(), row.getSheet().getWorkbook(), originalCell.getSheet().getWorkbook());
             cell.setCellStyle(cellStyle);
-            cell.setCellType(originalCell.getCellType());
+            cell.setCellType(originalCell.getCellTypeEnum());
 
-            switch (originalCell.getCellType()) {
-                case Cell.CELL_TYPE_FORMULA: {
-                    switch (tableCell.getCellType()) {
-                        case NUMERIC:
-                            cell.setCellValue(tableCell.toNumeric());
-                            break;
-                        case BOOLEAN:
-                            cell.setCellValue(tableCell.toBoolean());
-                            break;
-                        case STRING:
-                            cell.setCellValue(tableCell.toString());
-                            break;
-                    }
+            switch (originalCell.getCellTypeEnum()) {
+                case FORMULA: {
                     cell.setCellFormula(originalCell.getCellFormula());
                     break;
                 }
-                case Cell.CELL_TYPE_BOOLEAN: {
+                case BOOLEAN: {
                     cell.setCellValue(originalCell.getBooleanCellValue());
                     break;
                 }
-                case Cell.CELL_TYPE_NUMERIC: {
+                case NUMERIC: {
                     cell.setCellValue(originalCell.getNumericCellValue());
                     break;
                 }
-                case Cell.CELL_TYPE_STRING: {
+                case STRING: {
                     if (cell.getCellStyle().getClass().equals(originalCell.getCellStyle().getClass())) {
                         cell.setCellValue(originalCell.getRichStringCellValue());
                     } else {
@@ -248,11 +241,15 @@ public class ExcelSheetWriter extends AbstractTableWriter {
                     }
                     break;
                 }
+                default: {
+                    // do nothing
+                }
+
             }
 
             Hyperlink originalLink = originalCell.getHyperlink();
             if (originalLink != null) {
-                Hyperlink link = row.getSheet().getWorkbook().getCreationHelper().createHyperlink(originalLink.getType());
+                Hyperlink link = row.getSheet().getWorkbook().getCreationHelper().createHyperlink(originalLink.getTypeEnum());
                 link.setFirstColumn(originalLink.getFirstColumn());
                 link.setFirstRow(originalLink.getFirstRow());
                 link.setLastColumn(originalLink.getLastColumn());
@@ -261,24 +258,25 @@ public class ExcelSheetWriter extends AbstractTableWriter {
                 link.setLabel(originalLink.getLabel());
                 cell.setHyperlink(link);
             }
-
-
         } else {
-            switch (tableCell.getCellType()) {
+            switch (tableCell.getTableCellType()) {
                 case BLANK:
-                    cell.setCellType(Cell.CELL_TYPE_BLANK);
+                    cell.setCellType(CellType.BLANK);
+                    break;
+                case FORMULA:
+                    cell.setCellFormula(tableCell.getFormula());
                     break;
                 case STRING:
                 default:
-                    cell.setCellType(Cell.CELL_TYPE_STRING);
+                    cell.setCellType(CellType.STRING);
                     cell.setCellValue(tableCell.toString());
                     break;
                 case NUMERIC:
-                    cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+                    cell.setCellType(CellType.NUMERIC);
                     cell.setCellValue(tableCell.toNumeric());
                     break;
                 case BOOLEAN:
-                    cell.setCellType(Cell.CELL_TYPE_BOOLEAN);
+                    cell.setCellType(CellType.BOOLEAN);
                     cell.setCellValue(tableCell.toBoolean());
                     break;
             }
@@ -293,15 +291,15 @@ public class ExcelSheetWriter extends AbstractTableWriter {
             return;
         }
 
-        dest.setBorderTop(source.getBorderTop());
-        dest.setBorderBottom(source.getBorderBottom());
-        dest.setBorderLeft(source.getBorderLeft());
-        dest.setBorderRight(source.getBorderRight());
+        dest.setBorderTop(source.getBorderTopEnum());
+        dest.setBorderBottom(source.getBorderBottomEnum());
+        dest.setBorderLeft(source.getBorderLeftEnum());
+        dest.setBorderRight(source.getBorderRightEnum());
         dest.setDataFormat(source.getDataFormat());
 
         Font newFont = destWorkbook.createFont();
         Font originalFont = sourceWorkbook.getFontAt(source.getFontIndex());
-        newFont.setBoldweight(originalFont.getBoldweight());
+        newFont.setBold(originalFont.getBold());
         newFont.setUnderline(originalFont.getUnderline());
         newFont.setItalic(originalFont.getItalic());
         newFont.setFontHeight(originalFont.getFontHeight());

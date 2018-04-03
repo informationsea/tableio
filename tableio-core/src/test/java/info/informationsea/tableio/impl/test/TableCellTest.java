@@ -32,7 +32,7 @@ public class TableCellTest {
         Assert.assertFalse(empty.toBoolean());
         Assert.assertEquals("", empty.toString());
         Assert.assertTrue(empty.isEmptyCell());
-        Assert.assertEquals(TableCell.CellType.BLANK, empty.getCellType());
+        Assert.assertEquals(TableCell.TableCellType.BLANK, empty.getTableCellType());
         Assert.assertNull(empty.toObject());
     }
 
@@ -48,7 +48,7 @@ public class TableCellTest {
         Assert.assertFalse(empty.toBoolean());
         Assert.assertEquals("", empty.toString());
         Assert.assertTrue(empty.isEmptyCell());
-        Assert.assertEquals(TableCell.CellType.BLANK, empty.getCellType());
+        Assert.assertEquals(TableCell.TableCellType.BLANK, empty.getTableCellType());
     }
 
     @Test(expected = NumberFormatException.class)
@@ -63,7 +63,7 @@ public class TableCellTest {
         Assert.assertFalse(str.toBoolean());
         Assert.assertEquals("2.0", str.toString());
         Assert.assertFalse(str.isEmptyCell());
-        Assert.assertEquals(TableCell.CellType.STRING, str.getCellType());
+        Assert.assertEquals(TableCell.TableCellType.STRING, str.getTableCellType());
         Assert.assertEquals(2.0, str.toNumeric(), 0.00000001);
     }
 
@@ -74,7 +74,7 @@ public class TableCellTest {
         Assert.assertEquals("Hello", str.toString());
         Assert.assertEquals("Hello", str.toObject());
         Assert.assertFalse(str.isEmptyCell());
-        Assert.assertEquals(TableCell.CellType.STRING, str.getCellType());
+        Assert.assertEquals(TableCell.TableCellType.STRING, str.getTableCellType());
     }
 
     @Test(expected = NumberFormatException.class)
@@ -89,7 +89,7 @@ public class TableCellTest {
         Assert.assertTrue(str.toBoolean());
         Assert.assertEquals("true", str.toString());
         Assert.assertFalse(str.isEmptyCell());
-        Assert.assertEquals(TableCell.CellType.STRING, str.getCellType());
+        Assert.assertEquals(TableCell.TableCellType.STRING, str.getTableCellType());
     }
 
     @Test
@@ -107,7 +107,7 @@ public class TableCellTest {
         Assert.assertTrue(str.toBoolean());
         Assert.assertEquals("true", str.toString());
         Assert.assertFalse(str.isEmptyCell());
-        Assert.assertEquals(TableCell.CellType.BOOLEAN, str.getCellType());
+        Assert.assertEquals(TableCell.TableCellType.BOOLEAN, str.getTableCellType());
     }
 
     @Test
@@ -116,7 +116,7 @@ public class TableCellTest {
         Assert.assertFalse(str.toBoolean());
         Assert.assertEquals("false", str.toString());
         Assert.assertFalse(str.isEmptyCell());
-        Assert.assertEquals(TableCell.CellType.BOOLEAN, str.getCellType());
+        Assert.assertEquals(TableCell.TableCellType.BOOLEAN, str.getTableCellType());
     }
 
     @Test
@@ -124,7 +124,7 @@ public class TableCellTest {
         AdaptiveTableCellImpl adaptiveTableCell = new AdaptiveTableCellImpl("Hello");
         AdaptiveTableCellImpl copyConstructor = new AdaptiveTableCellImpl(adaptiveTableCell);
 
-        Assert.assertEquals(TableCell.CellType.STRING, copyConstructor.getCellType());
+        Assert.assertEquals(TableCell.TableCellType.STRING, copyConstructor.getTableCellType());
         Assert.assertEquals("Hello", copyConstructor.toString());
     }
 

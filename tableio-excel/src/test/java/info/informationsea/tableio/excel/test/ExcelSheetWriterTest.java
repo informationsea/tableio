@@ -26,6 +26,7 @@ import info.informationsea.tableio.impl.AdaptiveTableCellImpl;
 import info.informationsea.tableio.impl.TableCellHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFColor;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -40,6 +41,8 @@ import java.io.FileOutputStream;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+
+import static org.junit.Assert.assertTrue;
 
 @Slf4j
 public class ExcelSheetWriterTest {
@@ -123,6 +126,24 @@ public class ExcelSheetWriterTest {
     }
 
     @Test
+    public void testWriter7() throws Exception {
+        XSSFWorkbook workbook = new XSSFWorkbook();
+        try (ExcelSheetWriter sheetWriter = new ExcelSheetWriter(workbook.createSheet())) {
+            sheetWriter.printRecord(new AdaptiveTableCellImpl("=1+2"),
+                    new AdaptiveTableCellImpl("=HYPERLINK(\"http://www.google.co.jp\")"));
+        }
+
+        File buildDir = new File("build");
+        File testOutput = new File(buildDir.getAbsolutePath(), "test-data");
+        if (!testOutput.isDirectory())
+            assertTrue(testOutput.mkdirs());
+        try (FileOutputStream outputStream = new FileOutputStream(new File(testOutput, "formula-writer.xlsx"))) {
+            workbook.write(outputStream);
+        }
+
+    }
+
+    @Test
     public void testPrettyWriter() throws Exception {
         File buildDir = new File(System.getProperty("user.dir"), "build");
         File testOutput = new File(buildDir, "test-data");
@@ -160,7 +181,7 @@ public class ExcelSheetWriterTest {
             CellStyle[] styles = new CellStyle[3];
             for (int i = 0; i < styles.length; i++) {
                 styles[i] = writer.getWorkbook().createCellStyle();
-                styles[i].setFillPattern(CellStyle.SOLID_FOREGROUND);
+                styles[i].setFillPattern(FillPatternType.SOLID_FOREGROUND);
             }
             ((XSSFCellStyle)styles[0]).setFillForegroundColor(new XSSFColor(new Color(241, 232, 255)));
             ((XSSFCellStyle)styles[1]).setFillForegroundColor(new XSSFColor(new Color(232, 255, 238)));

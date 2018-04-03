@@ -1,20 +1,21 @@
-import lombok.delombok.Delombok
-
 buildscript {
     repositories {
         mavenCentral()
     }
     dependencies {
-        classpath 'org.projectlombok:lombok:1.14.8'
-        classpath 'org.apache.poi:poi:3.10.1'
-        classpath 'org.apache.poi:poi-ooxml:3.10.1'
+        classpath 'org.projectlombok:lombok:1.16.20'
+        classpath 'org.apache.poi:poi:3.17'
+        classpath 'org.apache.poi:poi-ooxml:3.17'
         classpath 'net.sf.opencsv:opencsv:2.3'
     }
 }
 
+//import lombok.delombok.Delombok
+
 apply plugin: 'java'
 
 task delombok << {
+    /*
     def delombokInstance = new Delombok()
     rootProject.subprojects.each {
         delombokInstance.addDirectory(file(it.projectDir.getAbsolutePath() + '/src/main/java'))
@@ -26,6 +27,7 @@ task delombok << {
 
     delombokInstance.setOutput(file("$buildDir/delomboked"))
     delombokInstance.delombok()
+    */
 }
 
 javadoc.dependsOn(delombok)
@@ -46,7 +48,7 @@ allprojects {
 
     sourceCompatibility = 1.7
     group = 'info.informationsea.tableio'
-    version = '0.1.2'
+    version = '0.2-SNAPSHOT'
 }
 
 

@@ -21,7 +21,9 @@ package info.informationsea.tableio.excel;
 import info.informationsea.tableio.TableCell;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import org.apache.poi.ss.format.CellFormat;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -32,7 +34,7 @@ public class ExcelCell implements TableCell {
     @Getter
     private Cell cell;
     @Getter
-    private CellType cellType = CellType.BLANK;
+    private TableCellType tableCellType = TableCellType.BLANK;
 
     public ExcelCell(Cell cell) {
         this.cell = cell;
@@ -42,31 +44,31 @@ public class ExcelCell implements TableCell {
 
         try {
             cell.getStringCellValue();
-            cellType = CellType.STRING;
+            tableCellType = TableCellType.STRING;
             return;
         } catch (IllegalStateException e) {}
 
         try {
             cell.getNumericCellValue();
-            cellType = CellType.NUMERIC;
+            tableCellType = TableCellType.NUMERIC;
             return;
         } catch (IllegalStateException e) {}
 
         try {
             cell.getBooleanCellValue();
-            cellType = CellType.BOOLEAN;
+            tableCellType = TableCellType.BOOLEAN;
             return;
         } catch (IllegalStateException e) {}
     }
 
     @Override
     public boolean isEmptyCell() {
-        return getCellType() == CellType.BLANK;
+        return this.getTableCellType() == TableCellType.BLANK;
     }
 
     @Override
     public boolean toBoolean() {
-        switch (cellType) {
+        switch (tableCellType) {
             case BOOLEAN:
                 return cell.getBooleanCellValue();
             case STRING:
@@ -80,7 +82,7 @@ public class ExcelCell implements TableCell {
 
     @Override
     public double toNumeric() {
-        switch (cellType) {
+        switch (tableCellType) {
             case NUMERIC:
                 return cell.getNumericCellValue();
             case STRING:
@@ -94,7 +96,9 @@ public class ExcelCell implements TableCell {
 
     @Override
     public String toString() {
-        switch (cellType) {
+        return CellFormat.getInstance(cell.getCellStyle().getDataFormatString()).apply(cell).text;
+        /*
+        switch (tableCellType) {
             case NUMERIC:
                 return numericFormat(cell.getCellStyle().getDataFormatString(), cell.getNumericCellValue());
             case STRING:
@@ -105,11 +109,12 @@ public class ExcelCell implements TableCell {
             default:
                 return "";
         }
+        */
     }
 
     @Override
     public String getFormula() {
-        if (cell.getCellType() == Cell.CELL_TYPE_FORMULA) {
+        if (cell.getCellTypeEnum() == CellType.FORMULA) {
             return cell.getCellFormula();
         }
         return null;
@@ -143,7 +148,7 @@ public class ExcelCell implements TableCell {
 
     @Override
     public Object toObject() {
-        switch (getCellType()) {
+        switch (this.getTableCellType()) {
             case NUMERIC:
                 return toNumeric();
             case BOOLEAN:

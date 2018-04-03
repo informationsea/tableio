@@ -28,29 +28,35 @@ public class AdaptiveTableCellImpl implements TableCell {
     boolean booleanValue = false;
     double doubleValue = Double.NaN;
     String stringValue = null;
+    String formulaValue = null;
 
     @Getter
-    CellType cellType = CellType.BLANK;
+    TableCellType tableCellType = TableCellType.BLANK;
 
     public AdaptiveTableCellImpl() {}
 
     public AdaptiveTableCellImpl(Object data) {
         if (data == null) {
-            cellType = CellType.BLANK;
+            tableCellType = TableCellType.BLANK;
         } else if (data instanceof Number) {
             doubleValue = ((Number) data).doubleValue();
-            cellType = CellType.NUMERIC;
+            tableCellType = TableCellType.NUMERIC;
         } else if (data instanceof Boolean) {
             booleanValue = (Boolean)data;
-            cellType = CellType.BOOLEAN;
+            tableCellType = TableCellType.BOOLEAN;
         } else if (data instanceof String) {
-            stringValue = (String)data;
-            cellType = CellType.STRING;
+            if (((String) data).startsWith("=")) {
+                formulaValue = ((String) data).substring(1);
+                tableCellType = TableCellType.FORMULA;
+            } else {
+                stringValue = (String) data;
+                tableCellType = TableCellType.STRING;
+            }
         } else if (data instanceof AdaptiveTableCellImpl) {
             booleanValue = ((AdaptiveTableCellImpl) data).booleanValue;
             stringValue = ((AdaptiveTableCellImpl) data).stringValue;
             doubleValue = ((AdaptiveTableCellImpl) data).doubleValue;
-            cellType = ((AdaptiveTableCellImpl) data).cellType;
+            tableCellType = ((AdaptiveTableCellImpl) data).tableCellType;
         } else {
             throw new IllegalArgumentException(String.format("%s is not supported", data.getClass().toString()));
         }
@@ -58,12 +64,12 @@ public class AdaptiveTableCellImpl implements TableCell {
 
     @Override
     public boolean isEmptyCell() {
-        return cellType == CellType.BLANK;
+        return tableCellType == TableCellType.BLANK;
     }
 
     @Override
     public boolean toBoolean() {
-        switch (cellType) {
+        switch (tableCellType) {
             case STRING:
                 return Boolean.parseBoolean(stringValue);
             case BOOLEAN:
@@ -77,7 +83,7 @@ public class AdaptiveTableCellImpl implements TableCell {
 
     @Override
     public double toNumeric() {
-        switch (cellType) {
+        switch (tableCellType) {
             case STRING:
                 return Double.parseDouble(stringValue);
             case NUMERIC:
@@ -91,9 +97,11 @@ public class AdaptiveTableCellImpl implements TableCell {
 
     @Override
     public String toString() {
-        switch (cellType) {
+        switch (tableCellType) {
             case STRING:
                 return stringValue;
+            case FORMULA:
+                return formulaValue;
             case NUMERIC:
                 return Double.toString(doubleValue);
             case BOOLEAN:
@@ -106,18 +114,20 @@ public class AdaptiveTableCellImpl implements TableCell {
 
     @Override
     public String getFormula() {
-        return null;
+        return formulaValue;
     }
 
     @Override
     public Object toObject() {
-        switch (getCellType()) {
+        switch (this.getTableCellType()) {
             case NUMERIC:
                 return toNumeric();
             case BOOLEAN:
                 return toBoolean();
             case STRING:
                 return toString();
+            case FORMULA:
+                return getFormula();
             case BLANK:
             default:
                 return null;
