@@ -180,7 +180,7 @@ public class ExcelSheetReaderTest {
             cell = (ExcelCell) record.get("Numeric");
             Assert.assertEquals(1.0, cell.toNumeric(), 0.00000001);
             Assert.assertEquals(TableCell.TableCellType.NUMERIC, cell.getTableCellType());
-            Assert.assertEquals("1.00 ", cell.toString());
+            Assert.assertEquals("1.00", cell.toString());
 
             cell = (ExcelCell) record.get("Boolean");
             Assert.assertFalse(cell.toBoolean());
@@ -207,7 +207,7 @@ public class ExcelSheetReaderTest {
             cell = (ExcelCell) record.get("Formula");
             Assert.assertEquals(3.0, cell.toNumeric(), 0.00000001);
             Assert.assertEquals(TableCell.TableCellType.NUMERIC, cell.getTableCellType());
-            Assert.assertEquals("3.00 ", cell.toString());
+            Assert.assertEquals("3.00", cell.toString());
         }
 
         { // Verify fifth line

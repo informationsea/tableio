@@ -96,7 +96,7 @@ public class ExcelCell implements TableCell {
 
     @Override
     public String toString() {
-        return CellFormat.getInstance(cell.getCellStyle().getDataFormatString()).apply(cell).text;
+        return CellFormat.getInstance(cell.getCellStyle().getDataFormatString()).apply(cell).text.trim();
         /*
         switch (tableCellType) {
             case NUMERIC:
